@@ -21,11 +21,11 @@ from django.contrib import admin
 from django.contrib.auth.views import LoginView
 from django.urls import path, include
 
-from users.views import LogoutAndRedirect, register
+from users.views import register, logout_and_redirect
 
 urlpatterns = [
     path('login/', LoginView.as_view(template_name='users/login.html'), name='login'),
-    path('logout/', LogoutAndRedirect.as_view(), name='logout'),
+    path('logout/', logout_and_redirect, name='logout'),
     path('register/', register, name='register'),
     path('', include('apps.urls')),
     path('users/', include('users.urls'))

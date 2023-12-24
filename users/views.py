@@ -1,18 +1,16 @@
-from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.contrib.auth.views import LogoutView
 from django.shortcuts import redirect, render
 
 from users.forms import UserCreationForms, ProfileSettingsForm
 
 
-class LogoutAndRedirect(LogoutView):
-    # Redirect to / after logout
-    def get_next_page(self):
-        return settings.LOGOUT_REDIRECT_URL
+def logout_and_redirect(request):
+    logout(request)
+    messages.success(request, f'Logged out successfully!')
+    return redirect('apps_home')
 
 
 def register(request):
