@@ -37,6 +37,22 @@ def class_detail(request, class_id):
     })
 
 
+@login_required()
+def class_edit(request, class_id):
+    if request.method == 'POST':
+        form = ClassForm(request.POST, instance=Class.objects.get(id=class_id))
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Class edited successfully!')
+            return redirect('apps_class_detail', class_id=class_id)
+    else:
+        form = ClassForm(instance=Class.objects.get(id=class_id))
+    return render(request, 'apps/class/edit.html', {
+        'form': form,
+        'class': Class.objects.get(id=class_id)
+    })
+
+
 def instance_list(request):
     return render(request, 'apps/instances/list.html', {
         'all_instances': Instance.objects.all()
@@ -60,6 +76,22 @@ def instance_create(request):
 
 def instance_detail(request, instance_id):
     return render(request, 'apps/instances/detail.html', {
+        'instance': Instance.objects.get(id=instance_id)
+    })
+
+
+@login_required()
+def instance_edit(request, instance_id):
+    if request.method == 'POST':
+        form = InstanceForm(request.POST, instance=Instance.objects.get(id=instance_id))
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Instance edited successfully!')
+            return redirect('apps_instance_detail', instance_id=instance_id)
+    else:
+        form = InstanceForm(instance=Instance.objects.get(id=instance_id))
+    return render(request, 'apps/instances/edit.html', {
+        'form': form,
         'instance': Instance.objects.get(id=instance_id)
     })
 

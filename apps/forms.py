@@ -20,6 +20,14 @@ class ClassForm(forms.ModelForm):
         model = Class
         fields = ['name']
 
+    def clean(self):
+        cleaned_data = super(ClassForm, self).clean()
+        name = cleaned_data.get("name")
+        exist_class = Class.objects.filter(name=name)
+        if exist_class.exists():
+            self.add_error('name', f'The class with name {name} already exists')
+        return cleaned_data
+
 
 class InstanceForm(forms.ModelForm):
     name = forms.CharField(
@@ -47,6 +55,18 @@ class InstanceForm(forms.ModelForm):
     class Meta:
         model = Instance
         fields = ['name', 'class_instance']
+
+    def clean(self):
+        cleaned_data = super(InstanceForm, self).clean()
+        name = cleaned_data.get("name")
+        class_instance = cleaned_data.get("class_instance")
+        exist_instance = Instance.objects.filter(name=name, class_instance=class_instance)
+        if exist_instance.exists():
+            raise forms.ValidationError(
+                f"The instance with name {name} already exists in {class_instance}",
+                code='invalid'
+            )
+        return cleaned_data
 
 
 class InstanceInstanceConnectionForm(forms.ModelForm):
