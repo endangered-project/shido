@@ -9,4 +9,7 @@ urlpatterns = [
     path('instance/', instance_list, name='apps_instance_list'),
     path('instance/<int:instance_id>/', instance_detail, name='apps_instance_detail'),
     path('instance/create/', instance_create, name='apps_instance_create'),
+    path('instance_instance_connection/', instance_instance_connection_list, name='apps_instance_instance_connection_list'),
+    path('instance_instance_connection/create/', instance_instance_connection_create, name='apps_instance_instance_connection_create'),
+    path('instance_instance_connection/<int:instance_instance_connection_id>/', instance_instance_connection_detail, name='apps_instance_instance_connection_detail'),
 ]

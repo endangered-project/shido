@@ -1,6 +1,6 @@
 from django import forms
 
-from apps.models import Class, Instance
+from apps.models import Class, Instance, InstanceInstanceConnection
 
 
 class ClassForm(forms.ModelForm):
@@ -47,3 +47,55 @@ class InstanceForm(forms.ModelForm):
     class Meta:
         model = Instance
         fields = ['name', 'class_instance']
+
+
+class InstanceInstanceConnectionForm(forms.ModelForm):
+    name = forms.CharField(
+        max_length=50,
+        label='Connection Name',
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'placeholder': 'Eats'
+            }
+        ),
+        help_text='Enter the name of the connection'
+    )
+
+    first_instance_class = forms.ModelChoiceField(
+        queryset=Class.objects.all(),
+        label='From Class',
+        widget=forms.Select(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Select the first class that this connection will be in'
+    )
+
+    second_instance_class = forms.ModelChoiceField(
+        queryset=Class.objects.all(),
+        label='To Class',
+        widget=forms.Select(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Select the second class that this connection will be in'
+    )
+
+    class Meta:
+        model = InstanceInstanceConnection
+        fields = ['name', 'first_instance_class', 'second_instance_class']
+
+    def clean(self):
+        cleaned_data = super(InstanceInstanceConnectionForm, self).clean()
+        first_instance_class = cleaned_data.get("first_instance_class")
+        second_instance_class = cleaned_data.get("second_instance_class")
+        exist_connection = InstanceInstanceConnection.objects.filter(first_instance_class=first_instance_class, second_instance_class=second_instance_class)
+        if exist_connection.exists():
+            raise forms.ValidationError(
+                f"The connection between {first_instance_class} and {second_instance_class} already exists ({exist_connection.first().name})",
+                code='invalid'
+            )
+        return cleaned_data
