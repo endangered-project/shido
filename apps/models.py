@@ -65,6 +65,7 @@ class PropertyType(models.Model):
     Property of the instance
     """
     name = models.CharField(max_length=100)
+    class_instance = models.ForeignKey(Class, on_delete=models.CASCADE)
     # raw type is the type that the program will be rendered
     # since in database we can contain only some basic types like string, int, float, etc.
     # but sometime we want to render it as a date, markdown, image, etc.

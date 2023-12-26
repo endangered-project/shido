@@ -31,7 +31,7 @@
                         <p class="card-text mb-0">ID : {{ instance.id }}</p>
                         <p class="card-text mb-0">From : {{ instance.first_instance_class.name }}</p>
                         <p class="card-text">To : {{ instance.second_instance_class.name }}</p>
-                        <a href="{% url 'apps_instance_detail' instance.id %}" class="btn btn-primary btn-sm"><i class="mdi mdi-information" aria-hidden="true" style="font-size: 15px"></i> Detail</a>
+                        <a href="{% url 'apps_instance_instance_connection_detail' instance.id %}" class="btn btn-primary btn-sm"><i class="mdi mdi-information" aria-hidden="true" style="font-size: 15px"></i> Detail</a>
                     </div>
                 </div>
             </div>

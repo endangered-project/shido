@@ -1,7 +1,7 @@
 {% extends "apps/base.html" %}
 {% load static %}
 
-{% block title %}{{ instance_instance_connection.name }} < Instance{% endblock %}
+{% block title %}{{ property_type.name }} < Property Type{% endblock %}
 
 {% block styles %}
 
@@ -10,14 +10,14 @@
 {% block header %}
     <div style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb" class="header-title">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'apps_instance_instance_connection_list' %}" class="header-title">Instance-Instance Connection</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><div style="font-size: 20px">{{ instance_instance_connection.name }}</div></li>
+            <li class="breadcrumb-item"><a href="{% url 'apps_property_type_list' %}" class="header-title">Property Type</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><div style="font-size: 20px">{{ property_type.name }}</div></li>
         </ol>
     </div>
 {% endblock %}
 
 {% block content %}
-    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">{{ instance_instance_connection.name }}</h1>
+    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">{{ property_type.name }}</h1>
     <p></p>
     
 {% endblock %}

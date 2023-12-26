@@ -2,8 +2,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
-from apps.forms import ClassForm, InstanceForm, InstanceInstanceConnectionForm
-from apps.models import Class, Instance, InstanceInstanceConnection
+from apps.forms import ClassForm, InstanceForm, InstanceInstanceConnectionForm, PropertyTypeForm
+from apps.models import Class, Instance, InstanceInstanceConnection, PropertyType
 
 
 def home(request):
@@ -120,4 +120,31 @@ def instance_instance_connection_create(request):
 def instance_instance_connection_detail(request, instance_instance_connection_id):
     return render(request, 'apps/instance_instance_connection/detail.html', {
         'instance_instance_connection': InstanceInstanceConnection.objects.get(id=instance_instance_connection_id)
+    })
+
+
+def property_type_list(request):
+    return render(request, 'apps/property_type/list.html', {
+        'all_property_type': PropertyType.objects.all()
+    })
+
+
+@login_required()
+def property_type_create(request):
+    if request.method == 'POST':
+        form = PropertyTypeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Property type created successfully!')
+            return redirect('apps_property_type_list')
+    else:
+        form = PropertyTypeForm()
+    return render(request, 'apps/property_type/create.html', {
+        'form': form
+    })
+
+
+def property_type_detail(request, property_type_id):
+    return render(request, 'apps/property_type/detail.html', {
+        'property_type': PropertyType.objects.get(id=property_type_id)
     })
