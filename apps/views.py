@@ -32,6 +32,9 @@ def class_create(request):
 
 
 def class_detail(request, class_id):
+    if not Class.objects.filter(id=class_id).exists():
+        messages.error(request, f'Class with id {class_id} does not exist')
+        return redirect('apps_class_list')
     return render(request, 'apps/class/detail.html', {
         'class': Class.objects.get(id=class_id)
     })
@@ -55,7 +58,8 @@ def class_edit(request, class_id):
 
 def instance_list(request):
     return render(request, 'apps/instances/list.html', {
-        'all_instances': Instance.objects.all()
+        'all_instances': Instance.objects.all(),
+        'all_classes': Class.objects.all()
     })
 
 
@@ -75,6 +79,9 @@ def instance_create(request):
 
 
 def instance_detail(request, instance_id):
+    if not Instance.objects.filter(id=instance_id).exists():
+        messages.error(request, f'Instance with id {instance_id} does not exist')
+        return redirect('apps_instance_list')
     return render(request, 'apps/instances/detail.html', {
         'instance': Instance.objects.get(id=instance_id)
     })
@@ -118,6 +125,9 @@ def instance_instance_connection_create(request):
 
 
 def instance_instance_connection_detail(request, instance_instance_connection_id):
+    if not InstanceInstanceConnection.objects.filter(id=instance_instance_connection_id).exists():
+        messages.error(request, f'Instance-Instance Connection with id {instance_instance_connection_id} does not exist')
+        return redirect('apps_instance_instance_connection_list')
     return render(request, 'apps/instance_instance_connection/detail.html', {
         'instance_instance_connection': InstanceInstanceConnection.objects.get(id=instance_instance_connection_id)
     })
@@ -145,6 +155,9 @@ def property_type_create(request):
 
 
 def property_type_detail(request, property_type_id):
+    if not PropertyType.objects.filter(id=property_type_id).exists():
+        messages.error(request, f'Property type with id {property_type_id} does not exist')
+        return redirect('apps_property_type_list')
     return render(request, 'apps/property_type/detail.html', {
         'property_type': PropertyType.objects.get(id=property_type_id)
     })
