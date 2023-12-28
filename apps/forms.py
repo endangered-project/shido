@@ -1,6 +1,7 @@
 from django import forms
 
-from apps.models import Class, Instance, InstanceInstanceConnection, RAW_TYPE_CHOICES, PropertyType
+from apps.models import Class, Instance, InstanceInstanceConnection, RAW_TYPE_CHOICES, PropertyType, \
+    type_limitation_template
 
 
 class ClassForm(forms.ModelForm):
@@ -163,7 +164,8 @@ class PropertyTypeForm(forms.ModelForm):
                 'class': 'form-control'
             }
         ),
-        help_text='Enter the limitation of the property type'
+        required=False,
+        help_text='Enter the limitation of the property type in JSON format, if want to use default, leave it blank'
     )
 
     class Meta:
@@ -181,4 +183,68 @@ class PropertyTypeForm(forms.ModelForm):
                 f"The property type with name {name} already exists in {class_instance} with raw type {raw_type}",
                 code='invalid'
             )
+        # check if the limitation is valid
+        limitation = cleaned_data.get("limitation")
+        if limitation:
+            # no duplication key in JSON
+            if len(limitation) != len(set(limitation.keys())):
+                self.add_error('limitation', f'The limitation must not have duplication key')
+            # remove the key that is not allowed from template
+            need_remove = []
+            for key in limitation.keys():
+                if key not in type_limitation_template[raw_type].keys():
+                    need_remove.append(key)
+            for key in need_remove:
+                limitation.pop(key)
+            if raw_type == 'string':
+                allowed_key = type_limitation_template['string'].keys()
+                for key in limitation.keys():
+                    if key not in allowed_key:
+                        self.add_error('limitation', f'The limitation key {key} is not allowed for raw type {raw_type}')
+                if 'min_length' in limitation:
+                    if not isinstance(limitation['min_length'], int):
+                        self.add_error('limitation', f'The limitation min_length must be an integer')
+                if 'max_length' in limitation:
+                    if not isinstance(limitation['max_length'], int):
+                        self.add_error('limitation', f'The limitation max_length must be an integer')
+            elif raw_type == 'number':
+                if 'min_value' in limitation:
+                    if not isinstance(limitation['min_value'], int):
+                        self.add_error('limitation', f'The limitation min_value must be an integer')
+                if 'max_value' in limitation:
+                    if not isinstance(limitation['max_value'], int):
+                        self.add_error('limitation', f'The limitation max_value must be an integer')
+            elif raw_type == 'float':
+                if 'min_value' in limitation:
+                    if not isinstance(limitation['min_value'], float) and not isinstance(limitation['min_value'], int):
+                        self.add_error('limitation', f'The limitation min_value must be a float or integer')
+                if 'max_value' in limitation:
+                    if not isinstance(limitation['max_value'], float) and not isinstance(limitation['max_value'], int):
+                        self.add_error('limitation', f'The limitation max_value must be a float or integer')
+                if 'decimal_places' in limitation:
+                    if not isinstance(limitation['decimal_places'], int):
+                        self.add_error('limitation', f'The limitation decimal_places must be an integer')
+            elif raw_type == 'instance':
+                if 'class_id' in limitation:
+                    if not isinstance(limitation['class_id'], int):
+                        self.add_error('limitation', f'The limitation class_id must be an integer')
+                    try:
+                        Class.objects.get(id=limitation['class_id'])
+                    except Class.DoesNotExist:
+                        self.add_error('limitation', f'The limitation class_id must be an existing class id')
+            elif raw_type == 'instance_list':
+                if 'allow_class_id_list' in limitation:
+                    if not isinstance(limitation['allow_class_id_list'], list):
+                        self.add_error('limitation', f'The limitation allow_class_id_list must be a list')
+                    else:
+                        for class_id in limitation['allow_class_id_list']:
+                            if not isinstance(class_id, int):
+                                self.add_error('limitation', f'The limitation allow_class_id_list must be a list of integer')
+                            try:
+                                Class.objects.get(id=class_id)
+                            except Class.DoesNotExist:
+                                self.add_error('limitation', f'The limitation allow_class_id_list ({class_id}) must be an existing class id')
+        else:
+            # replace the limitation with default
+            cleaned_data['limitation'] = type_limitation_template[raw_type]
         return cleaned_data

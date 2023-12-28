@@ -52,12 +52,41 @@ RAW_TYPE_CHOICES = (
     ('float', 'Float'),
     ('boolean', 'Boolean'),
     ('date', 'Date'),
+    ('datetime', 'Date Time'),
     ('markdown', 'Markdown'),
     ('image', 'Image'),
     ('file', 'File'),
     ('instance', 'Instance'),
     ('instance_list', 'Instance List')
 )
+
+type_limitation_template = {
+    "string": {
+        "min_length": 0,
+        "max_length": 255
+    },
+    "number": {
+        "min_value": -2147483648,
+        "max_value": 2147483647
+    },
+    "float": {
+        "min_value": -2147483648,
+        "max_value": 2147483647,
+        "decimal_places": 2
+    },
+    "boolean": {},
+    "date": {},
+    "datetime": {},
+    "markdown": {},
+    "image": {},
+    "file": {},
+    "instance": {
+        "class_id": 0
+    },
+    "instance_list": {
+        "allow_class_id_list": []
+    }
+}
 
 
 class PropertyType(models.Model):
@@ -77,7 +106,7 @@ class PropertyType(models.Model):
     #  - min and max value of number
     #  - min and max length of string
     # this will specify the format by the program
-    limitation = models.JSONField()
+    limitation = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
         return self.name

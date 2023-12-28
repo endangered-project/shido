@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
 from apps.forms import ClassForm, InstanceForm, InstanceInstanceConnectionForm, PropertyTypeForm
-from apps.models import Class, Instance, InstanceInstanceConnection, PropertyType
+from apps.models import Class, Instance, InstanceInstanceConnection, PropertyType, type_limitation_template
+from apps.templatetags.json_to_list import json_to_list
 
 
 def home(request):
@@ -158,6 +159,8 @@ def property_type_detail(request, property_type_id):
     if not PropertyType.objects.filter(id=property_type_id).exists():
         messages.error(request, f'Property type with id {property_type_id} does not exist')
         return redirect('apps_property_type_list')
+    property_type = PropertyType.objects.get(id=property_type_id)
     return render(request, 'apps/property_type/detail.html', {
-        'property_type': PropertyType.objects.get(id=property_type_id)
+        'property_type': property_type,
+        'limitation_list': json_to_list(property_type.limitation)
     })

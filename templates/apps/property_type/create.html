@@ -27,5 +27,46 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+    const typeLimitationTemplate = {
+        "string": {
+            "min_length": 0,
+            "max_length": 255
+        },
+        "number": {
+            "min_value": -2147483648,
+            "max_value": 2147483647
+        },
+        "float": {
+            "min_value": -2147483648,
+            "max_value": 2147483647,
+            "decimal_places": 2
+        },
+        "boolean": {},
+        "date": {},
+        "datetime": {},
+        "markdown": {},
+        "image": {},
+        "file": {},
+        "instance": {
+            "class_id": 0
+        },
+        "instance_list": {
+            "allow_class_id_list": []
+        }
+    };
 
+    // limitation text area
+    let limitation = document.getElementById("id_limitation");
+    let rawType = document.getElementById("id_raw_type");
+    
+    // on raw type dropdown value change, update the limitation text area
+    rawType.addEventListener("change", function() {
+        let type = rawType.value;
+        limitation.value = JSON.stringify(typeLimitationTemplate[type], null, 4);
+    });
+    
+    // Add string limitation as default
+    limitation.value = JSON.stringify(typeLimitationTemplate[rawType.value], null, 4);
+</script>
 {% endblock %}

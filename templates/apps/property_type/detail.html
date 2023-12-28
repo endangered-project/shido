@@ -19,7 +19,16 @@
 {% block content %}
     <h1 style="padding-top: 1rem; padding-bottom: 1rem;">{{ property_type.name }}</h1>
     <p></p>
-    
+    <h3>Limitation</h3>
+    {% if limitation_list %}
+    <ul>
+        {% for limitation in limitation_list %}
+        <li>{{ limitation.key }} : {{ limitation.value }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p><i class="mdi mdi-alert-circle-outline"></i> No limitation set</p>
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}
