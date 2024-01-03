@@ -29,8 +29,8 @@
                     <div class="element-card-body">
                         <h5 class="card-title">{{ instance.name }}</h5>
                         <p class="card-text mb-0">ID : {{ instance.id }}</p>
-                        <p class="card-text mb-0">From : {{ instance.first_instance_class.name }}</p>
-                        <p class="card-text">To : {{ instance.second_instance_class.name }}</p>
+                        <p class="card-text mb-0">From : <a href="{% url 'apps_class_detail' instance.first_instance_class.id %}">{{ instance.first_instance_class.name }}</a></p>
+                        <p class="card-text">To : <a href="{% url 'apps_class_detail' instance.second_instance_class.id %}">{{ instance.second_instance_class.name }}</a></p>
                         <a href="{% url 'apps_instance_instance_connection_detail' instance.id %}" class="btn btn-primary btn-sm"><i class="mdi mdi-information" aria-hidden="true" style="font-size: 15px"></i> Detail</a>
                     </div>
                 </div>
