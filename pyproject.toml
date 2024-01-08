@@ -6,10 +6,10 @@ authors = ["Phawit Pornwattanakul <me@helloyeew.dev>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
-django = "^5.0"
+python = "^3.11"
+django = "^5.0.1"
 python-decouple = "^3.8"
-django-admin-interface = "^0.27.0"
+django-admin-interface = "^0.28.1"
 django-crispy-forms = "^2.1"
 crispy-bootstrap5 = "^2023.10"
 gunicorn = "^21.2.0"
