@@ -1,22 +1,25 @@
 {% extends "apps/base.html" %}
 {% load static %}
 
-{% block title %}{{ instance.name }} < Instance{% endblock %}
+{% block title %}{{ instance.name }}{% endblock %}
 
 {% block styles %}
 
 {% endblock %}
 
 {% block header %}
-    <div style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb" class="header-title">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'apps_instance_list' %}" class="header-title">Instance</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><div style="font-size: 20px">{{ instance.name }}</div></li>
-        </ol>
-    </div>
+    <p class="header-title">
+        {{ instance.name }}
+    </p>
 {% endblock %}
 
 {% block content %}
+    <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'apps_instance_list' %}" class="header-title">Instance</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ instance.name }}</li>
+        </ol>
+    </nav>
     <h1 style="padding-top: 1rem; padding-bottom: 1rem;">{{ instance.name }}</h1>
     <p></p>
     <a href="{% url 'apps_instance_edit' instance.id %}" class="btn btn-primary"><i class="mdi mdi-pencil" aria-hidden="true" style="font-size: 20px"></i> Edit</a>
