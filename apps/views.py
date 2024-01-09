@@ -104,6 +104,19 @@ def instance_edit(request, instance_id):
     })
 
 
+@login_required()
+def instance_add_property(request, instance_id):
+    try:
+        instance = Instance.objects.get(id=instance_id)
+    except Instance.DoesNotExist:
+        messages.error(request, f'Instance with id {instance_id} does not exist')
+        return redirect('apps_instance_list')
+    return render(request, 'apps/instances/add_property.html', {
+        'instance': instance,
+        'all_property_types': PropertyType.objects.filter(class_instance=instance.class_instance)
+    })
+
+
 def instance_instance_connection_list(request):
     return render(request, 'apps/instance_instance_connection/list.html', {
         'all_instances': InstanceInstanceConnection.objects.all()

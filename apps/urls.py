@@ -10,6 +10,7 @@ urlpatterns = [
     path('instance/', instance_list, name='apps_instance_list'),
     path('instance/<int:instance_id>/', instance_detail, name='apps_instance_detail'),
     path('instance/<int:instance_id>/edit/', instance_edit, name='apps_instance_edit'),
+    path('instance/<int:instance_id>/add_property/', instance_add_property, name='apps_instance_add_property'),
     path('instance/create/', instance_create, name='apps_instance_create'),
     path('instance_instance_connection/', instance_instance_connection_list, name='apps_instance_instance_connection_list'),
     path('instance_instance_connection/create/', instance_instance_connection_create, name='apps_instance_instance_connection_create'),

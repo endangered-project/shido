@@ -23,6 +23,7 @@
     <h1 style="padding-top: 1rem; padding-bottom: 1rem;">{{ instance.name }}</h1>
     <p></p>
     <a href="{% url 'apps_instance_edit' instance.id %}" class="btn btn-primary"><i class="mdi mdi-pencil" aria-hidden="true" style="font-size: 20px"></i> Edit</a>
+    <a href="{% url 'apps_instance_add_property' instance.id %}" class="btn btn-primary"><i class="mdi mdi-flag-plus" aria-hidden="true" style="font-size: 20px"></i> Add property</a>
 {% endblock %}
 
 {% block scripts %}
