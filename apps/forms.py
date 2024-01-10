@@ -342,12 +342,9 @@ class ObjectPropertyFloatForm(forms.Form):
 class ObjectPropertyBooleanForm(forms.Form):
     value = forms.BooleanField(
         label='Value',
-        widget=forms.CheckboxInput(
-            attrs={
-                'class': 'form-control'
-            }
-        ),
-        help_text='Enter the value of the property'
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        help_text='Enter the value of the property',
+        required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -454,7 +451,7 @@ class ObjectPropertyInstanceForm(forms.Form):
         if self.initial_value:
             self.base_fields['value'].initial = self.initial_value
         if self.class_id != 0:
-            self.base_fields['value'].help_text = f'Select the value of the property (only instance in {Class.objects.get(id=self.class_id)} will be shown)'
+            self.base_fields['value'].help_text = f'Select the value of the property (only instance in {Class.objects.get(id=self.class_id)} will be shown due to the limitation)'
             self.base_fields['value'].queryset = Instance.objects.filter(class_instance__id=self.class_id)
         super(ObjectPropertyInstanceForm, self).__init__(*args, **kwargs)
 
@@ -478,5 +475,5 @@ class ObjectPropertyInstanceListForm(forms.Form):
             self.base_fields['value'].initial = self.initial_value
         if self.class_id_list:
             self.base_fields['value'].help_text = f'Select the value of the property (only instance in {Class.objects.filter(id__in=self.class_id_list)} will be shown)'
-        self.base_fields['value'].queryset = Instance.objects.filter(class_instance__id__in=self.class_id_list)
+            self.base_fields['value'].queryset = Instance.objects.filter(class_instance__id__in=self.class_id_list)
         super(ObjectPropertyInstanceListForm, self).__init__(*args, **kwargs)

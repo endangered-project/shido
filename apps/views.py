@@ -117,9 +117,15 @@ def instance_add_property_list(request, instance_id):
     except Instance.DoesNotExist:
         messages.error(request, f'Instance with id {instance_id} does not exist')
         return redirect('apps_instance_list')
+    property_list = []
+    for property_type in PropertyType.objects.filter(class_instance=instance.class_instance):
+        property_list.append({
+            'property_type': property_type,
+            'exist': ObjectPropertyRelation.objects.filter(instance_object=instance, property_type=property_type).exists()
+        })
     return render(request, 'apps/instances/add_property_list.html', {
         'instance': instance,
-        'all_property_types': PropertyType.objects.filter(class_instance=instance.class_instance)
+        'all_property_types': property_list
     })
 
 
@@ -157,7 +163,7 @@ def instance_add_property_form(request, instance_id, property_type_id):
         elif property_type.raw_type == 'instance':
             form = ObjectPropertyInstanceForm(request.POST, class_id=property_type.limitation['class_id'], initial_value=Instance.objects.filter(class_instance_id=property_type.limitation['class_id']).first())
         elif property_type.raw_type == 'instance_list':
-            form = ObjectPropertyInstanceListForm(request.POST, allow_class_id_list=property_type.limitation['allow_class_id_list'], initial_value=[])
+            form = ObjectPropertyInstanceListForm(request.POST, class_id_list=property_type.limitation['allow_class_id_list'], initial_value=[])
         else:
             messages.error(request, f'Raw type {property_type.raw_type} is not supported for adding property')
             return redirect('apps_instance_detail', instance_id=instance_id)
@@ -169,6 +175,11 @@ def instance_add_property_form(request, instance_id, property_type_id):
                 # get path to file, not full path, only path from media
                 file_path = default_storage.url(file_name)
                 raw_value = file_path
+            elif property_type.raw_type == 'instance_list':
+                # get list of instance id with comma separated
+                raw_value = ','.join([str(instance.id) for instance in form.cleaned_data['value']])
+            elif property_type.raw_type == 'instance':
+                raw_value = str(form.cleaned_data['value'].id)
             else:
                 raw_value = form.cleaned_data['value']
             ObjectPropertyRelation.objects.create(
@@ -200,7 +211,7 @@ def instance_add_property_form(request, instance_id, property_type_id):
         elif property_type.raw_type == 'instance':
             form = ObjectPropertyInstanceForm(class_id=property_type.limitation['class_id'], initial_value=Instance.objects.filter(class_instance_id=property_type.limitation['class_id']).first())
         elif property_type.raw_type == 'instance_list':
-            form = ObjectPropertyInstanceListForm(allow_class_id_list=property_type.limitation['allow_class_id_list'], initial_value=[])
+            form = ObjectPropertyInstanceListForm(class_id_list=property_type.limitation['allow_class_id_list'], initial_value=[])
         else:
             messages.error(request, f'Raw type {property_type.raw_type} is not supported for adding property')
             return redirect('apps_instance_detail', instance_id=instance_id)
