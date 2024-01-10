@@ -85,10 +85,16 @@ def instance_create(request):
 
 
 def instance_detail(request, instance_id):
+    # TODO: This should be redirect to wiki view if wiki is enabled
+    return redirect('apps_instance_detail_raw', instance_id=instance_id)
+
+
+def instance_detail_raw(request, instance_id):
     if not Instance.objects.filter(id=instance_id).exists():
         messages.error(request, f'Instance with id {instance_id} does not exist')
         return redirect('apps_instance_list')
-    return render(request, 'apps/instances/detail.html', {
+    return render(request, 'apps/instances/detail_raw.html', {
+        'top_menu_active': 'raw',
         'instance': Instance.objects.get(id=instance_id),
         'object_property': ObjectPropertyRelation.objects.filter(instance_object_id=instance_id)
     })

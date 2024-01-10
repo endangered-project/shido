@@ -24,9 +24,11 @@
     </nav>
     <h1 style="padding-top: 1rem; padding-bottom: 1rem;">{{ instance.name }}</h1>
     <p></p>
-    <a href="{% url 'apps_instance_edit' instance.id %}" class="btn btn-primary"><i class="mdi mdi-pencil" aria-hidden="true" style="font-size: 20px"></i> Edit</a>
-    <a href="{% url 'apps_instance_property_list' instance.id %}" class="btn btn-primary"><i class="mdi mdi-flag-plus" aria-hidden="true" style="font-size: 20px"></i> Add or edit property</a>
+    {% include 'apps/instances/snippets/top_menu_pills.html' %}
+    <a href="{% url 'apps_instance_edit' instance.id %}" class="btn btn-primary"><i class="mdi mdi-pencil" aria-hidden="true" style="font-size: 16px"></i> Edit</a>
+    <a href="{% url 'apps_instance_property_list' instance.id %}" class="btn btn-primary"><i class="mdi mdi-flag-plus" aria-hidden="true" style="font-size: 16px"></i> Add or edit property</a>
     <p></p>
+    <p>Showing {{ object_property|length }} properties</p>
     {% for property in object_property %}
     <div class="row mb-3">
         <div class="col-md-3">

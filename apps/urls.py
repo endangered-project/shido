@@ -9,6 +9,7 @@ urlpatterns = [
     path('class/create/', class_create, name='apps_class_create'),
     path('instance/', instance_list, name='apps_instance_list'),
     path('instance/<int:instance_id>/', instance_detail, name='apps_instance_detail'),
+    path('instance/<int:instance_id>/raw', instance_detail_raw, name='apps_instance_detail_raw'),
     path('instance/<int:instance_id>/edit/', instance_edit, name='apps_instance_edit'),
     path('instance/<int:instance_id>/property/', instance_property_list, name='apps_instance_property_list'),
     path('instance/<int:instance_id>/property/<int:property_type_id>/', instance_property_form, name='apps_instance_property_form'),
