@@ -18,7 +18,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'apps_instance_list' %}">Instance</a></li>
             <li class="breadcrumb-item"><a href="{% url 'apps_instance_detail' instance.id %}">{{ instance.name }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Add property</li>
+            <li class="breadcrumb-item active" aria-current="page">Add property list</li>
         </ol>
     </nav>
     <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Add property for {{ instance.name }}</h1>
@@ -32,7 +32,7 @@
                     <div class="element-card-body">
                         <h5 class="card-title">{{ property.name }}</h5>
                         <p class="card-text mb-0">Raw type : {{ property.get_raw_type_display }}</p>
-                        <a href="#" class="btn btn-primary btn-sm"><i class="mdi mdi-flag-plus" aria-hidden="true" style="font-size: 15px"></i> Create</a>
+                        <a href="{% url 'apps_instance_add_property' instance.id property.id %}" class="btn btn-primary btn-sm"><i class="mdi mdi-flag-plus" aria-hidden="true" style="font-size: 15px"></i> Create</a>
                         <a href="{% url 'apps_property_type_detail' property.id %}" class="btn btn-primary btn-sm"><i class="mdi mdi-information" aria-hidden="true" style="font-size: 15px"></i> Detail</a>
                     </div>
                 </div>

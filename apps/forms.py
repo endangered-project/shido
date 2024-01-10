@@ -263,6 +263,7 @@ class ObjectPropertyStringForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        self.min_length = kwargs.pop('min_length')
         self.max_length = kwargs.pop('max_length')
         self.initial_value = kwargs.pop('initial_value')
         if self.initial_value:
@@ -274,11 +275,14 @@ class ObjectPropertyStringForm(forms.Form):
     def clean(self):
         cleaned_data = super(ObjectPropertyStringForm, self).clean()
         value = cleaned_data.get("value")
+        if len(value) < self.min_length:
+            self.add_error('value', f'The value must not be shorter than {self.min_length}')
         if len(value) > self.max_length:
             self.add_error('value', f'The value must not be longer than {self.max_length}')
         return cleaned_data
 
-class ObjectProperyIntegerForm(forms.Form):
+
+class ObjectPropertyNumberForm(forms.Form):
     value = forms.IntegerField(
         label='Value',
         widget=forms.NumberInput(
@@ -295,17 +299,17 @@ class ObjectProperyIntegerForm(forms.Form):
         self.initial_value = kwargs.pop('initial_value')
         if self.initial_value:
             self.base_fields['value'].initial = self.initial_value
-        super(ObjectProperyIntegerForm, self).__init__(*args, **kwargs)
+        super(ObjectPropertyNumberForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-        cleaned_data = super(ObjectProperyIntegerForm, self).clean()
+        cleaned_data = super(ObjectPropertyNumberForm, self).clean()
         value = cleaned_data.get("value")
         if value < self.min_value or value > self.max_value:
             self.add_error('value', f'The value must be between {self.min_value} and {self.max_value}')
         return cleaned_data
 
 
-class ObjectProperyFloatForm(forms.Form):
+class ObjectPropertyFloatForm(forms.Form):
     value = forms.FloatField(
         label='Value',
         widget=forms.NumberInput(
@@ -323,10 +327,10 @@ class ObjectProperyFloatForm(forms.Form):
         self.initial_value = kwargs.pop('initial_value')
         if self.initial_value:
             self.base_fields['value'].initial = self.initial_value
-        super(ObjectProperyFloatForm, self).__init__(*args, **kwargs)
+        super(ObjectPropertyFloatForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-        cleaned_data = super(ObjectProperyFloatForm, self).clean()
+        cleaned_data = super(ObjectPropertyFloatForm, self).clean()
         value = cleaned_data.get("value")
         if value < self.min_value or value > self.max_value:
             self.add_error('value', f'The value must be between {self.min_value} and {self.max_value}')
@@ -335,7 +339,7 @@ class ObjectProperyFloatForm(forms.Form):
         return cleaned_data
 
 
-class ObjectProperyBooleanForm(forms.Form):
+class ObjectPropertyBooleanForm(forms.Form):
     value = forms.BooleanField(
         label='Value',
         widget=forms.CheckboxInput(
@@ -350,10 +354,10 @@ class ObjectProperyBooleanForm(forms.Form):
         self.initial_value = kwargs.pop('initial_value')
         if self.initial_value:
             self.base_fields['value'].initial = self.initial_value
-        super(ObjectProperyBooleanForm, self).__init__(*args, **kwargs)
+        super(ObjectPropertyBooleanForm, self).__init__(*args, **kwargs)
 
 
-class ObjectProperyDateForm(forms.Form):
+class ObjectPropertyDateForm(forms.Form):
     value = forms.DateField(
         label='Value',
         widget=forms.DateInput(
@@ -368,10 +372,10 @@ class ObjectProperyDateForm(forms.Form):
         self.initial_value = kwargs.pop('initial_value')
         if self.initial_value:
             self.base_fields['value'].initial = self.initial_value
-        super(ObjectProperyDateForm, self).__init__(*args, **kwargs)
+        super(ObjectPropertyDateForm, self).__init__(*args, **kwargs)
 
 
-class ObjectProperyDateTimeForm(forms.Form):
+class ObjectPropertyDateTimeForm(forms.Form):
     value = forms.DateTimeField(
         label='Value',
         widget=forms.DateTimeInput(
@@ -386,10 +390,10 @@ class ObjectProperyDateTimeForm(forms.Form):
         self.initial_value = kwargs.pop('initial_value')
         if self.initial_value:
             self.base_fields['value'].initial = self.initial_value
-        super(ObjectProperyDateTimeForm, self).__init__(*args, **kwargs)
+        super(ObjectPropertyDateTimeForm, self).__init__(*args, **kwargs)
 
 
-class ObjectProperyMarkdownForm(forms.Form):
+class ObjectPropertyMarkdownForm(forms.Form):
     # TODO: Change this to markdown editor
     value = forms.CharField(
         label='Value',
@@ -405,10 +409,10 @@ class ObjectProperyMarkdownForm(forms.Form):
         self.initial_value = kwargs.pop('initial_value')
         if self.initial_value:
             self.base_fields['value'].initial = self.initial_value
-        super(ObjectProperyMarkdownForm, self).__init__(*args, **kwargs)
+        super(ObjectPropertyMarkdownForm, self).__init__(*args, **kwargs)
 
 
-class ObjectProperyImageForm(forms.Form):
+class ObjectPropertyImageForm(forms.Form):
     value = forms.ImageField(
         label='Value',
         widget=forms.FileInput(
@@ -419,14 +423,8 @@ class ObjectProperyImageForm(forms.Form):
         help_text='Enter the value of the property'
     )
 
-    def __init__(self, *args, **kwargs):
-        self.initial_value = kwargs.pop('initial_value')
-        if self.initial_value:
-            self.base_fields['value'].initial = self.initial_value
-        super(ObjectProperyImageForm, self).__init__(*args, **kwargs)
 
-
-class ObjectProperyFileForm(forms.Form):
+class ObjectPropertyFileForm(forms.Form):
     value = forms.FileField(
         label='Value',
         widget=forms.FileInput(
@@ -437,14 +435,8 @@ class ObjectProperyFileForm(forms.Form):
         help_text='Enter the value of the property'
     )
 
-    def __init__(self, *args, **kwargs):
-        self.initial_value = kwargs.pop('initial_value')
-        if self.initial_value:
-            self.base_fields['value'].initial = self.initial_value
-        super(ObjectProperyFileForm, self).__init__(*args, **kwargs)
 
-
-class ObjectProperyInstanceForm(forms.Form):
+class ObjectPropertyInstanceForm(forms.Form):
     value = forms.ModelChoiceField(
         queryset=Instance.objects.all(),
         label='Value',
@@ -461,13 +453,13 @@ class ObjectProperyInstanceForm(forms.Form):
         self.initial_value = kwargs.pop('initial_value')
         if self.initial_value:
             self.base_fields['value'].initial = self.initial_value
-        if self.class_id:
+        if self.class_id != 0:
             self.base_fields['value'].help_text = f'Select the value of the property (only instance in {Class.objects.get(id=self.class_id)} will be shown)'
-        self.base_fields['value'].queryset = Instance.objects.filter(class_instance__id=self.class_id)
-        super(ObjectProperyInstanceForm, self).__init__(*args, **kwargs)
+            self.base_fields['value'].queryset = Instance.objects.filter(class_instance__id=self.class_id)
+        super(ObjectPropertyInstanceForm, self).__init__(*args, **kwargs)
 
 
-class ObjectProperyInstanceListForm(forms.Form):
+class ObjectPropertyInstanceListForm(forms.Form):
     value = forms.ModelMultipleChoiceField(
         queryset=Instance.objects.all(),
         label='Value',
@@ -487,4 +479,4 @@ class ObjectProperyInstanceListForm(forms.Form):
         if self.class_id_list:
             self.base_fields['value'].help_text = f'Select the value of the property (only instance in {Class.objects.filter(id__in=self.class_id_list)} will be shown)'
         self.base_fields['value'].queryset = Instance.objects.filter(class_instance__id__in=self.class_id_list)
-        super(ObjectProperyInstanceListForm, self).__init__(*args, **kwargs)
+        super(ObjectPropertyInstanceListForm, self).__init__(*args, **kwargs)
