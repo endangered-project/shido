@@ -1,7 +1,7 @@
 {% extends "apps/base.html" %}
 {% load static %}
 
-{% block title %}Add property for {{ instance.name }}{% endblock %}
+{% block title %}Add or edit property for {{ instance.name }}{% endblock %}
 
 {% block styles %}
 
@@ -9,7 +9,7 @@
 
 {% block header %}
     <p class="header-title">
-        {{ instance.name }}
+        Add or edit property for {{ instance.name }}
     </p>
 {% endblock %}
 
@@ -18,10 +18,10 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'apps_instance_list' %}">Instance</a></li>
             <li class="breadcrumb-item"><a href="{% url 'apps_instance_detail' instance.id %}">{{ instance.name }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Add property list</li>
+            <li class="breadcrumb-item active" aria-current="page">Add or edit property list</li>
         </ol>
     </nav>
-    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Add property for {{ instance.name }}</h1>
+    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Add or edit property for {{ instance.name }}</h1>
     <p></p>
     <p>Showing property types that can be added to <b>{{ instance.name }}</b> (property that can add to instance in <b>{{ instance.class_instance.name }}</b> class), if the property type you want is not listed, please create it <a href="{% url 'apps_property_type_create' %}">here</a>.</p>
     <h2>Existing property</h2>

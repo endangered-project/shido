@@ -1,5 +1,7 @@
 {% extends "apps/base.html" %}
 {% load static %}
+{% load markdown_converter %}
+{% load object_renderer %}
 
 {% block title %}{{ instance.name }}{% endblock %}
 
@@ -26,7 +28,7 @@
     <a href="{% url 'apps_instance_property_list' instance.id %}" class="btn btn-primary"><i class="mdi mdi-flag-plus" aria-hidden="true" style="font-size: 20px"></i> Add or edit property</a>
     <p></p>
     {% for property in object_property %}
-    <div class="row">
+    <div class="row mb-3">
         <div class="col-md-3">
             <p>{{ property.property_type.name }}</p>
             <p>ID : {{ property.id }}</p>
@@ -34,7 +36,17 @@
         </div>
         <div class="col-md-9">
             {% if property.property_type.raw_type == 'image' %}
-            <img src="{{ property.raw_value }}" alt="{{ property.property_type.name }}" style="max-width: 100%; max-height: 100%;">
+            <img src="{{ property.raw_value }}" alt="{{ property.property_type.name }}" style="max-width: 75%">
+            {% elif property.property_type.raw_type == 'file' %}
+            <a href="{{ property.raw_value }}" target="_blank" rel="noopener noreferrer">{{ property.raw_value }}</a>
+            {% elif property.property_type.raw_type == 'markdown' %}
+            <div class="markdown">
+                {{ property.raw_value|convert_markdown|safe }}
+            </div>
+            {% elif property.property_type.raw_type == 'instance' %}
+            {{ property.raw_value|render_instance|safe }}
+            {% elif property.property_type.raw_type == 'instance_list' %}
+            {{ property.raw_value|render_instance_list|safe }}
             {% else %}
             <p>{{ property.raw_value }}</p>
             {% endif %}
