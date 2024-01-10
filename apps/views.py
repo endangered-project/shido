@@ -111,7 +111,7 @@ def instance_edit(request, instance_id):
 
 
 @login_required()
-def instance_add_property_list(request, instance_id):
+def instance_property_list(request, instance_id):
     try:
         instance = Instance.objects.get(id=instance_id)
     except Instance.DoesNotExist:
@@ -121,16 +121,17 @@ def instance_add_property_list(request, instance_id):
     for property_type in PropertyType.objects.filter(class_instance=instance.class_instance):
         property_list.append({
             'property_type': property_type,
-            'exist': ObjectPropertyRelation.objects.filter(instance_object=instance, property_type=property_type).exists()
+            'exist': ObjectPropertyRelation.objects.filter(instance_object=instance, property_type=property_type).exists(),
+            'id': ObjectPropertyRelation.objects.get(instance_object=instance, property_type=property_type).id if ObjectPropertyRelation.objects.filter(instance_object=instance, property_type=property_type).exists() else None
         })
-    return render(request, 'apps/instances/add_property_list.html', {
+    return render(request, 'apps/instances/property_list.html', {
         'instance': instance,
         'all_property_types': property_list
     })
 
 
 @login_required
-def instance_add_property_form(request, instance_id, property_type_id):
+def instance_property_form(request, instance_id, property_type_id):
     try:
         instance = Instance.objects.get(id=instance_id)
     except Instance.DoesNotExist:
@@ -141,6 +142,11 @@ def instance_add_property_form(request, instance_id, property_type_id):
     except PropertyType.DoesNotExist:
         messages.error(request, f'Property type with id {property_type_id} does not exist')
         return redirect('apps_instance_list')
+    # find old property
+    if ObjectPropertyRelation.objects.filter(instance_object=instance, property_type=property_type).exists():
+        old_property = ObjectPropertyRelation.objects.get(instance_object=instance, property_type=property_type)
+    else:
+        old_property = None
     if request.method == 'POST':
         if property_type.raw_type == 'string':
             form = ObjectPropertyStringForm(request.POST, max_length=property_type.limitation['max_length'], min_length=property_type.limitation['min_length'], initial_value='')
@@ -157,9 +163,9 @@ def instance_add_property_form(request, instance_id, property_type_id):
         elif property_type.raw_type == 'markdown':
             form = ObjectPropertyMarkdownForm(request.POST, request.FILES, initial_value='')
         elif property_type.raw_type == 'image':
-            form = ObjectPropertyImageForm(request.POST, request.FILES)
+            form = ObjectPropertyImageForm(request.POST, request.FILES, initial_value='')
         elif property_type.raw_type == 'file':
-            form = ObjectPropertyFileForm(request.POST, request.FILES)
+            form = ObjectPropertyFileForm(request.POST, request.FILES, initial_value='')
         elif property_type.raw_type == 'instance':
             form = ObjectPropertyInstanceForm(request.POST, class_id=property_type.limitation['class_id'], initial_value=Instance.objects.filter(class_instance_id=property_type.limitation['class_id']).first())
         elif property_type.raw_type == 'instance_list':
@@ -183,51 +189,51 @@ def instance_add_property_form(request, instance_id, property_type_id):
             else:
                 raw_value = form.cleaned_data['value']
             if ObjectPropertyRelation.objects.filter(instance_object=instance, property_type=property_type).exists():
-                form.add_error('value', f'This property with this type already exists (ID: {ObjectPropertyRelation.objects.get(instance_object=instance, property_type=property_type).id})')
-                return render(request, 'apps/instances/add_property_form.html', {
-                    'form': form,
-                    'instance': instance,
-                    'property_type': property_type,
-                    'limitation_list': json_to_list(property_type.limitation)
-                })
-            ObjectPropertyRelation.objects.create(
-                instance_object=instance,
-                property_type=property_type,
-                raw_value=raw_value
-            )
-            messages.success(request, f'Property added successfully!')
+                old_property.raw_value = raw_value
+                old_property.save()
+            else:
+                ObjectPropertyRelation.objects.create(
+                    instance_object=instance,
+                    property_type=property_type,
+                    raw_value=raw_value
+                )
+            if old_property:
+                messages.success(request, f'Property updated successfully!')
+            else:
+                messages.success(request, f'Property added successfully!')
             return redirect('apps_instance_detail', instance_id=instance_id)
     else:
         if property_type.raw_type == 'string':
-            form = ObjectPropertyStringForm(max_length=property_type.limitation['max_length'], min_length=property_type.limitation['min_length'], initial_value='')
+            form = ObjectPropertyStringForm(max_length=property_type.limitation['max_length'], min_length=property_type.limitation['min_length'], initial_value=old_property.raw_value if old_property else '')
         elif property_type.raw_type == 'number':
-            form = ObjectPropertyNumberForm(min_value=property_type.limitation['min_value'], max_value=property_type.limitation['max_value'], initial_value=property_type.limitation['min_value'])
+            form = ObjectPropertyNumberForm(min_value=property_type.limitation['min_value'], max_value=property_type.limitation['max_value'], initial_value=old_property.raw_value if old_property else property_type.limitation['min_value'])
         elif property_type.raw_type == 'float':
-            form = ObjectPropertyFloatForm(min_value=property_type.limitation['min_value'], max_value=property_type.limitation['max_value'], decimal_places=property_type.limitation['decimal_places'], initial_value=property_type.limitation['min_value'])
+            form = ObjectPropertyFloatForm(min_value=property_type.limitation['min_value'], max_value=property_type.limitation['max_value'], decimal_places=property_type.limitation['decimal_places'], initial_value=old_property.raw_value if old_property else property_type.limitation['min_value'])
         elif property_type.raw_type == 'boolean':
-            form = ObjectPropertyBooleanForm(initial_value=False)
+            form = ObjectPropertyBooleanForm(initial_value=bool(old_property.raw_value) if old_property else False)
         elif property_type.raw_type == 'date':
-            form = ObjectPropertyDateForm(initial_value='2020-01-01')
+            form = ObjectPropertyDateForm(initial_value=old_property.raw_value if old_property else '2020-01-01')
         elif property_type.raw_type == 'datetime':
-            form = ObjectPropertyDateTimeForm(initial_value='2020-01-01 00:00:00')
+            form = ObjectPropertyDateTimeForm(initial_value=old_property.raw_value if old_property else '2020-01-01 00:00:00')
         elif property_type.raw_type == 'markdown':
-            form = ObjectPropertyMarkdownForm(initial_value='')
+            form = ObjectPropertyMarkdownForm(initial_value=old_property.raw_value if old_property else '')
         elif property_type.raw_type == 'image':
-            form = ObjectPropertyImageForm()
+            form = ObjectPropertyImageForm(initial_value=old_property.raw_value if old_property else '')
         elif property_type.raw_type == 'file':
-            form = ObjectPropertyFileForm()
+            form = ObjectPropertyFileForm(initial_value=old_property.raw_value if old_property else '')
         elif property_type.raw_type == 'instance':
-            form = ObjectPropertyInstanceForm(class_id=property_type.limitation['class_id'], initial_value=Instance.objects.filter(class_instance_id=property_type.limitation['class_id']).first())
+            form = ObjectPropertyInstanceForm(class_id=property_type.limitation['class_id'], initial_value=Instance.objects.get(id=old_property.raw_value) if old_property else Instance.objects.filter(class_instance_id=property_type.limitation['class_id']).first())
         elif property_type.raw_type == 'instance_list':
-            form = ObjectPropertyInstanceListForm(class_id_list=property_type.limitation['allow_class_id_list'], initial_value=[])
+            form = ObjectPropertyInstanceListForm(class_id_list=property_type.limitation['allow_class_id_list'], initial_value=old_property.raw_value.split(',') if old_property else [])
         else:
             messages.error(request, f'Raw type {property_type.raw_type} is not supported for adding property')
             return redirect('apps_instance_detail', instance_id=instance_id)
-    return render(request, 'apps/instances/add_property_form.html', {
+    return render(request, 'apps/instances/property_form.html', {
         'form': form,
         'instance': instance,
         'property_type': property_type,
-        'limitation_list': json_to_list(property_type.limitation)
+        'limitation_list': json_to_list(property_type.limitation),
+        'old_property': old_property
     })
 
 

@@ -420,6 +420,12 @@ class ObjectPropertyImageForm(forms.Form):
         help_text='Enter the value of the property'
     )
 
+    def __init__(self, *args, **kwargs):
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        super(ObjectPropertyImageForm, self).__init__(*args, **kwargs)
+
 
 class ObjectPropertyFileForm(forms.Form):
     value = forms.FileField(
@@ -431,6 +437,12 @@ class ObjectPropertyFileForm(forms.Form):
         ),
         help_text='Enter the value of the property'
     )
+
+    def __init__(self, *args, **kwargs):
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        super(ObjectPropertyFileForm, self).__init__(*args, **kwargs)
 
 
 class ObjectPropertyInstanceForm(forms.Form):
@@ -472,7 +484,8 @@ class ObjectPropertyInstanceListForm(forms.Form):
         self.class_id_list = kwargs.pop('class_id_list')
         self.initial_value = kwargs.pop('initial_value')
         if self.initial_value:
-            self.base_fields['value'].initial = self.initial_value
+            # initial value will be served as a list of instance id
+            self.base_fields['value'].initial = Instance.objects.filter(id__in=self.initial_value)
         if self.class_id_list:
             self.base_fields['value'].help_text = f'Select the value of the property (only instance in {Class.objects.filter(id__in=self.class_id_list)} will be shown)'
             self.base_fields['value'].queryset = Instance.objects.filter(class_instance__id__in=self.class_id_list)

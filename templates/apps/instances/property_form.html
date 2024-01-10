@@ -9,7 +9,7 @@
 
 {% block header %}
     <p class="header-title">
-        Add property for {{ instance.name }}
+        Add or edit property for {{ instance.name }}
     </p>
 {% endblock %}
 
@@ -18,13 +18,17 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'apps_instance_list' %}">Instance</a></li>
             <li class="breadcrumb-item"><a href="{% url 'apps_instance_detail' instance.id %}">{{ instance.name }}</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'apps_instance_add_property_list' instance.id %}">Add property list</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Add property</li>
+            <li class="breadcrumb-item"><a href="{% url 'apps_instance_property_list' instance.id %}">Add or edit property list</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Add or edit property</li>
         </ol>
     </nav>
-    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Add property for {{ instance.name }}</h1>
+    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Add or edit property for {{ instance.name }}</h1>
     <p></p>
+    {% if old_property %}
+    <p>You are editing property <b>{{ old_property.name }}</b> for instance <b>{{ instance.name }}</b> that using raw type <b>{{ old_property.raw_type }}</b> with limitation :</p>
+    {% else %}
     <p>You are adding property type <b>{{ property_type.name }}</b> for instance <b>{{ instance.name }}</b> that using raw type <b>{{ property_type.raw_type }}</b> with limitation :</p>
+    {% endif %}
     {% if limitation_list %}
         <ul>
             {% for limitation in limitation_list %}
@@ -33,6 +37,9 @@
         </ul>
     {% else %}
         <p><i class="mdi mdi-alert-circle-outline"></i> No limitation set</p>
+    {% endif %}
+    {% if old_property %}
+        <p>Old raw value : {{ old_property.raw_value }}</p>
     {% endif %}
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
