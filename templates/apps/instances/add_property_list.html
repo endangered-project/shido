@@ -27,13 +27,17 @@
     <div class="row">
     {% for property in all_property_types %}
         <div class="col-md-4">
-            <div class="element-card-wrapper">
+            <div class="element-card-wrapper" {% if property.exist %}style="opacity: 50%"{% endif %}>
                 <div class="element-card-background" style="background: url({% static 'img/login.jpg' %}) center center / cover no-repeat; width: 100%; height: 100%; border-radius: 0.25rem;">
                     <div class="element-card-body">
-                        <h5 class="card-title">{{ property.name }}</h5>
-                        <p class="card-text mb-0">Raw type : {{ property.get_raw_type_display }}</p>
-                        <a href="{% url 'apps_instance_add_property' instance.id property.id %}" class="btn btn-primary btn-sm"><i class="mdi mdi-flag-plus" aria-hidden="true" style="font-size: 15px"></i> Create</a>
-                        <a href="{% url 'apps_property_type_detail' property.id %}" class="btn btn-primary btn-sm"><i class="mdi mdi-information" aria-hidden="true" style="font-size: 15px"></i> Detail</a>
+                        <h5 class="card-title">{{ property.property_type.name }}</h5>
+                        <p class="card-text mb-0">Raw type : {{ property.property_type.get_raw_type_display }}</p>
+                        {% if property.exist %}
+                        <p><i class="mdi mdi-alert-circle-outline"></i> This property already exist in this instance</p>
+                        {% else %}
+                        <a href="{% url 'apps_instance_add_property' instance.id property.property_type.id %}" class="btn btn-primary btn-sm"><i class="mdi mdi-flag-plus" aria-hidden="true" style="font-size: 15px"></i> Create</a>
+                        {% endif %}
+                        <a href="{% url 'apps_property_type_detail' property.property_type.id %}" class="btn btn-primary btn-sm"><i class="mdi mdi-information" aria-hidden="true" style="font-size: 15px"></i> Detail</a>
                     </div>
                 </div>
             </div>
