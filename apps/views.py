@@ -182,6 +182,14 @@ def instance_add_property_form(request, instance_id, property_type_id):
                 raw_value = str(form.cleaned_data['value'].id)
             else:
                 raw_value = form.cleaned_data['value']
+            if ObjectPropertyRelation.objects.filter(instance_object=instance, property_type=property_type).exists():
+                form.add_error('value', f'This property with this type already exists (ID: {ObjectPropertyRelation.objects.get(instance_object=instance, property_type=property_type).id})')
+                return render(request, 'apps/instances/add_property_form.html', {
+                    'form': form,
+                    'instance': instance,
+                    'property_type': property_type,
+                    'limitation_list': json_to_list(property_type.limitation)
+                })
             ObjectPropertyRelation.objects.create(
                 instance_object=instance,
                 property_type=property_type,
