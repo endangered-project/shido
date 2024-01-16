@@ -3,12 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
 from django.shortcuts import render, redirect
 
-from apps.forms import ClassForm, InstanceForm, InstanceInstanceConnectionForm, PropertyTypeForm, \
+from apps.forms import ClassForm, InstanceForm, PropertyTypeForm, \
     ObjectPropertyStringForm, ObjectPropertyNumberForm, ObjectPropertyFloatForm, ObjectPropertyBooleanForm, \
     ObjectPropertyDateForm, ObjectPropertyDateTimeForm, ObjectPropertyMarkdownForm, ObjectPropertyImageForm, \
     ObjectPropertyFileForm, ObjectPropertyInstanceForm, ObjectPropertyInstanceListForm
-from apps.models import Class, Instance, InstanceInstanceConnection, PropertyType, type_limitation_template, \
-    ObjectPropertyRelation
+from apps.models import Class, Instance, PropertyType, ObjectPropertyRelation
 from apps.templatetags.json_to_list import json_to_list
 
 
@@ -240,36 +239,6 @@ def instance_property_form(request, instance_id, property_type_id):
         'property_type': property_type,
         'limitation_list': json_to_list(property_type.limitation),
         'old_property': old_property
-    })
-
-
-def instance_instance_connection_list(request):
-    return render(request, 'apps/instance_instance_connection/list.html', {
-        'all_instances': InstanceInstanceConnection.objects.all()
-    })
-
-
-@login_required()
-def instance_instance_connection_create(request):
-    if request.method == 'POST':
-        form = InstanceInstanceConnectionForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f'Instance-Instance Connection created successfully!')
-            return redirect('apps_instance_instance_connection_list')
-    else:
-        form = InstanceInstanceConnectionForm()
-    return render(request, 'apps/instance_instance_connection/create.html', {
-        'form': form
-    })
-
-
-def instance_instance_connection_detail(request, instance_instance_connection_id):
-    if not InstanceInstanceConnection.objects.filter(id=instance_instance_connection_id).exists():
-        messages.error(request, f'Instance-Instance Connection with id {instance_instance_connection_id} does not exist')
-        return redirect('apps_instance_instance_connection_list')
-    return render(request, 'apps/instance_instance_connection/detail.html', {
-        'instance_instance_connection': InstanceInstanceConnection.objects.get(id=instance_instance_connection_id)
     })
 
 
