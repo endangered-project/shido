@@ -9,6 +9,7 @@ from apps.forms import ClassForm, InstanceForm, PropertyTypeForm, \
     ObjectPropertyFileForm, ObjectPropertyInstanceForm, ObjectPropertyInstanceListForm
 from apps.models import Class, Instance, PropertyType, ObjectPropertyRelation
 from apps.templatetags.json_to_list import json_to_list
+from enums import WIKI_PROPERTY_TYPE_LIST
 
 
 def home(request):
@@ -85,7 +86,38 @@ def instance_create(request):
 
 def instance_detail(request, instance_id):
     # TODO: This should be redirect to wiki view if wiki is enabled
-    return redirect('apps_instance_detail_raw', instance_id=instance_id)
+    return redirect('apps_instance_detail_wiki', instance_id=instance_id)
+
+
+def instance_detail_wiki(request, instance_id):
+    if not Instance.objects.filter(id=instance_id).exists():
+        messages.error(request, f'Instance with id {instance_id} does not exist')
+        return redirect('apps_instance_list')
+    have_wiki_property = True
+    for wiki_property_name in WIKI_PROPERTY_TYPE_LIST:
+        if not PropertyType.objects.filter(class_instance=Instance.objects.get(id=instance_id).class_instance, name=wiki_property_name).exists():
+            have_wiki_property = False
+            break
+    wiki_detail = {}
+    try:
+        wiki_detail['title'] = ObjectPropertyRelation.objects.get(instance_object_id=instance_id, property_type__name='wikiTitle').raw_value
+    except ObjectPropertyRelation.DoesNotExist:
+        wiki_detail['title'] = None
+    try:
+        wiki_detail['content'] = ObjectPropertyRelation.objects.get(instance_object_id=instance_id, property_type__name='wikiContent').raw_value
+    except ObjectPropertyRelation.DoesNotExist:
+        wiki_detail['content'] = None
+    try:
+        wiki_detail['image'] = ObjectPropertyRelation.objects.get(instance_object_id=instance_id, property_type__name='wikiImage').raw_value
+    except ObjectPropertyRelation.DoesNotExist:
+        wiki_detail['image'] = None
+    return render(request, 'apps/instances/detail_wiki.html', {
+        'top_menu_active': 'wiki',
+        'instance': Instance.objects.get(id=instance_id),
+        'object_property': ObjectPropertyRelation.objects.filter(instance_object_id=instance_id),
+        'have_wiki_property': have_wiki_property,
+        'wiki_detail': wiki_detail
+    })
 
 
 def instance_detail_raw(request, instance_id):
@@ -206,7 +238,7 @@ def instance_property_form(request, instance_id, property_type_id):
                 messages.success(request, f'Property updated successfully!')
             else:
                 messages.success(request, f'Property added successfully!')
-            return redirect('apps_instance_detail', instance_id=instance_id)
+            return redirect('apps_instance_detail_raw', instance_id=instance_id)
     else:
         if property_type.raw_type == 'string':
             form = ObjectPropertyStringForm(max_length=property_type.limitation['max_length'], min_length=property_type.limitation['min_length'], initial_value=old_property.raw_value if old_property else '')
@@ -242,6 +274,40 @@ def instance_property_form(request, instance_id, property_type_id):
     })
 
 
+def instance_create_wiki_property(request, instance_id):
+    # create property type required for wiki
+    # See list of required property type in apps/enums.py
+    try:
+        instance = Instance.objects.get(id=instance_id)
+    except Instance.DoesNotExist:
+        messages.error(request, f'Instance with id {instance_id} does not exist')
+        return redirect('apps_instance_list')
+    # create property type for wiki
+    if not PropertyType.objects.filter(class_instance=instance.class_instance, name='wikiTitle').exists():
+        PropertyType.objects.create(
+            class_instance=instance.class_instance,
+            name='wikiTitle',
+            raw_type='string',
+            limitation={'min_length': 1, 'max_length': 100}
+        )
+    if not PropertyType.objects.filter(class_instance=instance.class_instance, name='wikiContent').exists():
+        PropertyType.objects.create(
+            class_instance=instance.class_instance,
+            name='wikiContent',
+            raw_type='markdown',
+            limitation={}
+        )
+    if not PropertyType.objects.filter(class_instance=instance.class_instance, name='wikiImage').exists():
+        PropertyType.objects.create(
+            class_instance=instance.class_instance,
+            name='wikiImage',
+            raw_type='image',
+            limitation={}
+        )
+    messages.success(request, f'Wiki property created successfully, please edit them!')
+    return redirect('apps_instance_property_list', instance_id=instance_id)
+
+
 def property_type_list(request):
     return render(request, 'apps/property_type/list.html', {
         'all_property_type': PropertyType.objects.all()
@@ -259,7 +325,8 @@ def property_type_create(request):
     else:
         form = PropertyTypeForm()
     return render(request, 'apps/property_type/create.html', {
-        'form': form
+        'form': form,
+        'wiki_property_type_list': WIKI_PROPERTY_TYPE_LIST
     })
 
 

@@ -2,6 +2,7 @@ from django import forms
 
 from apps.models import Class, Instance, RAW_TYPE_CHOICES, PropertyType, \
     type_limitation_template
+from enums import WIKI_PROPERTY_TYPE_LIST
 
 
 class ClassForm(forms.ModelForm):
@@ -126,6 +127,8 @@ class PropertyTypeForm(forms.ModelForm):
         raw_type = cleaned_data.get("raw_type")
         class_instance = cleaned_data.get("class_instance")
         exist_property_type = PropertyType.objects.filter(name=name, class_instance=class_instance, raw_type=raw_type)
+        if name in WIKI_PROPERTY_TYPE_LIST:
+            self.add_error('name', f'The property type with name {name} is reserved for wiki, see the list for prohibited name above')
         if exist_property_type.exists():
             raise forms.ValidationError(
                 f"The property type with name {name} already exists in {class_instance} with raw type {raw_type}",
