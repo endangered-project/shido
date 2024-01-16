@@ -22,30 +22,6 @@ class Instance(models.Model):
         return self.name
 
 
-class InstanceInstanceConnection(models.Model):
-    """
-    Type of instance connect with other instance
-    """
-    name = models.CharField(max_length=100)
-    first_instance_class = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='first_instance_class')
-    second_instance_class = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='second_instance_class')
-
-    def __str__(self):
-        return self.name
-
-
-class InstanceInstanceRelation(models.Model):
-    """
-    Connect instance and instance
-    """
-    instance_object_1 = models.ForeignKey(Instance, on_delete=models.CASCADE, related_name='instance_object_1')
-    instance_object_2 = models.ForeignKey(Instance, on_delete=models.CASCADE, related_name='instance_object_2')
-    instance_instance_connection = models.ForeignKey(InstanceInstanceConnection, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return str(self.instance_object_1) + ' - ' + str(self.instance_object_2)
-
-
 RAW_TYPE_CHOICES = (
     ('string', 'String'),
     ('number', 'Integer'),

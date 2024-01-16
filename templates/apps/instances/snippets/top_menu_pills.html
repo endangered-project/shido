@@ -1,0 +1,13 @@
+<ul class="nav nav-pills" style="margin-bottom: 20px;">
+    <li class="nav-item">
+        <a class="nav-link {% if top_menu_active == 'wiki' %}active{% endif %}" href="#"><i class="mdi mdi-book"></i> Wiki</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if top_menu_active == 'raw' %}active{% endif %}" href="#"><i class="mdi mdi-map"></i> Raw</a>
+    </li>
+    {% if user.is_authenticated and user.is_staff %}
+    <li class="nav-item">
+        <a class="nav-link {% if top_menu_active == 'settings' %}active{% endif %}" href="#"><i class="mdi mdi-cog"></i> Settings</a>
+    </li>
+    {% endif %}
+</ul>

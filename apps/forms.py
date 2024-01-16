@@ -1,6 +1,6 @@
 from django import forms
 
-from apps.models import Class, Instance, InstanceInstanceConnection, RAW_TYPE_CHOICES, PropertyType, \
+from apps.models import Class, Instance, RAW_TYPE_CHOICES, PropertyType, \
     type_limitation_template
 
 
@@ -65,58 +65,6 @@ class InstanceForm(forms.ModelForm):
         if exist_instance.exists():
             raise forms.ValidationError(
                 f"The instance with name {name} already exists in {class_instance}",
-                code='invalid'
-            )
-        return cleaned_data
-
-
-class InstanceInstanceConnectionForm(forms.ModelForm):
-    name = forms.CharField(
-        max_length=50,
-        label='Connection Name',
-        widget=forms.TextInput(
-            attrs={
-                'class': 'form-control',
-                'placeholder': 'Eats'
-            }
-        ),
-        help_text='Enter the name of the connection'
-    )
-
-    first_instance_class = forms.ModelChoiceField(
-        queryset=Class.objects.all(),
-        label='From Class',
-        widget=forms.Select(
-            attrs={
-                'class': 'form-control'
-            }
-        ),
-        help_text='Select the first class that this connection will be in'
-    )
-
-    second_instance_class = forms.ModelChoiceField(
-        queryset=Class.objects.all(),
-        label='To Class',
-        widget=forms.Select(
-            attrs={
-                'class': 'form-control'
-            }
-        ),
-        help_text='Select the second class that this connection will be in'
-    )
-
-    class Meta:
-        model = InstanceInstanceConnection
-        fields = ['name', 'first_instance_class', 'second_instance_class']
-
-    def clean(self):
-        cleaned_data = super(InstanceInstanceConnectionForm, self).clean()
-        first_instance_class = cleaned_data.get("first_instance_class")
-        second_instance_class = cleaned_data.get("second_instance_class")
-        exist_connection = InstanceInstanceConnection.objects.filter(first_instance_class=first_instance_class, second_instance_class=second_instance_class)
-        if exist_connection.exists():
-            raise forms.ValidationError(
-                f"The connection between {first_instance_class} and {second_instance_class} already exists ({exist_connection.first().name})",
                 code='invalid'
             )
         return cleaned_data
@@ -248,3 +196,245 @@ class PropertyTypeForm(forms.ModelForm):
             # replace the limitation with default
             cleaned_data['limitation'] = type_limitation_template[raw_type]
         return cleaned_data
+
+
+class ObjectPropertyStringForm(forms.Form):
+    value = forms.CharField(
+        max_length=255,
+        label='Value',
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Enter the value of the property'
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.min_length = kwargs.pop('min_length')
+        self.max_length = kwargs.pop('max_length')
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        if self.max_length:
+            self.base_fields['value'].max_length = self.max_length
+        super(ObjectPropertyStringForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(ObjectPropertyStringForm, self).clean()
+        value = cleaned_data.get("value")
+        if len(value) < self.min_length:
+            self.add_error('value', f'The value must not be shorter than {self.min_length}')
+        if len(value) > self.max_length:
+            self.add_error('value', f'The value must not be longer than {self.max_length}')
+        return cleaned_data
+
+
+class ObjectPropertyNumberForm(forms.Form):
+    value = forms.IntegerField(
+        label='Value',
+        widget=forms.NumberInput(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Enter the value of the property'
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.min_value = kwargs.pop('min_value')
+        self.max_value = kwargs.pop('max_value')
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        super(ObjectPropertyNumberForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(ObjectPropertyNumberForm, self).clean()
+        value = cleaned_data.get("value")
+        if value < self.min_value or value > self.max_value:
+            self.add_error('value', f'The value must be between {self.min_value} and {self.max_value}')
+        return cleaned_data
+
+
+class ObjectPropertyFloatForm(forms.Form):
+    value = forms.FloatField(
+        label='Value',
+        widget=forms.NumberInput(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Enter the value of the property'
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.min_value = kwargs.pop('min_value')
+        self.max_value = kwargs.pop('max_value')
+        self.decimal_places = kwargs.pop('decimal_places')
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        super(ObjectPropertyFloatForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(ObjectPropertyFloatForm, self).clean()
+        value = cleaned_data.get("value")
+        if value < self.min_value or value > self.max_value:
+            self.add_error('value', f'The value must be between {self.min_value} and {self.max_value}')
+        # change decimal places
+        cleaned_data['value'] = round(value, self.decimal_places)
+        return cleaned_data
+
+
+class ObjectPropertyBooleanForm(forms.Form):
+    value = forms.BooleanField(
+        label='Value',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        help_text='Enter the value of the property',
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        super(ObjectPropertyBooleanForm, self).__init__(*args, **kwargs)
+
+
+class ObjectPropertyDateForm(forms.Form):
+    value = forms.DateField(
+        label='Value',
+        widget=forms.DateInput(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Enter the value of the property'
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        super(ObjectPropertyDateForm, self).__init__(*args, **kwargs)
+
+
+class ObjectPropertyDateTimeForm(forms.Form):
+    value = forms.DateTimeField(
+        label='Value',
+        widget=forms.DateTimeInput(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Enter the value of the property'
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        super(ObjectPropertyDateTimeForm, self).__init__(*args, **kwargs)
+
+
+class ObjectPropertyMarkdownForm(forms.Form):
+    # TODO: Change this to markdown editor
+    value = forms.CharField(
+        label='Value',
+        widget=forms.Textarea(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Enter the value of the property'
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        super(ObjectPropertyMarkdownForm, self).__init__(*args, **kwargs)
+
+
+class ObjectPropertyImageForm(forms.Form):
+    value = forms.ImageField(
+        label='Value',
+        widget=forms.FileInput(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Enter the value of the property'
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        super(ObjectPropertyImageForm, self).__init__(*args, **kwargs)
+
+
+class ObjectPropertyFileForm(forms.Form):
+    value = forms.FileField(
+        label='Value',
+        widget=forms.FileInput(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Enter the value of the property'
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        super(ObjectPropertyFileForm, self).__init__(*args, **kwargs)
+
+
+class ObjectPropertyInstanceForm(forms.Form):
+    value = forms.ModelChoiceField(
+        queryset=Instance.objects.all(),
+        label='Value',
+        widget=forms.Select(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Select the value of the property'
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.class_id = kwargs.pop('class_id')
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        if self.class_id != 0:
+            self.base_fields['value'].help_text = f'Select the value of the property (only instance in {Class.objects.get(id=self.class_id)} will be shown due to the limitation)'
+            self.base_fields['value'].queryset = Instance.objects.filter(class_instance__id=self.class_id)
+        super(ObjectPropertyInstanceForm, self).__init__(*args, **kwargs)
+
+
+class ObjectPropertyInstanceListForm(forms.Form):
+    value = forms.ModelMultipleChoiceField(
+        queryset=Instance.objects.all(),
+        label='Value',
+        widget=forms.SelectMultiple(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Select the value of the property'
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.class_id_list = kwargs.pop('class_id_list')
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            # initial value will be served as a list of instance id
+            self.base_fields['value'].initial = Instance.objects.filter(id__in=self.initial_value)
+        if self.class_id_list:
+            self.base_fields['value'].help_text = f'Select the value of the property (only instance in {Class.objects.filter(id__in=self.class_id_list)} will be shown)'
+            self.base_fields['value'].queryset = Instance.objects.filter(class_instance__id__in=self.class_id_list)
+        super(ObjectPropertyInstanceListForm, self).__init__(*args, **kwargs)
