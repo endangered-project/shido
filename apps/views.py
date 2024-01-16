@@ -100,10 +100,6 @@ def instance_detail_wiki(request, instance_id):
             break
     wiki_detail = {}
     try:
-        wiki_detail['title'] = ObjectPropertyRelation.objects.get(instance_object_id=instance_id, property_type__name='wikiTitle').raw_value
-    except ObjectPropertyRelation.DoesNotExist:
-        wiki_detail['title'] = None
-    try:
         wiki_detail['content'] = ObjectPropertyRelation.objects.get(instance_object_id=instance_id, property_type__name='wikiContent').raw_value
     except ObjectPropertyRelation.DoesNotExist:
         wiki_detail['content'] = None
@@ -283,13 +279,6 @@ def instance_create_wiki_property(request, instance_id):
         messages.error(request, f'Instance with id {instance_id} does not exist')
         return redirect('apps_instance_list')
     # create property type for wiki
-    if not PropertyType.objects.filter(class_instance=instance.class_instance, name='wikiTitle').exists():
-        PropertyType.objects.create(
-            class_instance=instance.class_instance,
-            name='wikiTitle',
-            raw_type='string',
-            limitation={'min_length': 1, 'max_length': 100}
-        )
     if not PropertyType.objects.filter(class_instance=instance.class_instance, name='wikiContent').exists():
         PropertyType.objects.create(
             class_instance=instance.class_instance,
