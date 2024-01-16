@@ -25,16 +25,20 @@
     <h1 style="padding-top: 1rem; padding-bottom: 1rem;">{{ instance.name }}</h1>
     <p></p>
     {% include 'apps/instances/snippets/top_menu_pills.html' %}
+    {% if user.is_authenticated %}
     <a href="{% url 'apps_instance_edit' instance.id %}" class="btn btn-primary"><i class="mdi mdi-pencil" aria-hidden="true" style="font-size: 16px"></i> Edit</a>
     <a href="{% url 'apps_instance_property_list' instance.id %}" class="btn btn-primary"><i class="mdi mdi-flag-plus" aria-hidden="true" style="font-size: 16px"></i> Add or edit property</a>
+    {% endif %}
     <p></p>
-    <p>Showing {{ object_property|length }} properties</p>
+    <p>{{ object_property|length }}  {% if object_property|length == 1 %}property{% else %}properties{% endif %}</p>
     {% for property in object_property %}
     <div class="row mb-3">
         <div class="col-md-3">
             <p>{{ property.property_type.name }}</p>
             <p>ID : {{ property.id }}</p>
+            {% if user.is_authenticated %}
             <p><a href="{% url 'apps_instance_property_form' instance.id property.property_type.id %}" class="btn btn-sm btn-primary"><i class="mdi mdi-pencil-plus" aria-hidden="true" style="font-size: 14px"></i> Edit</a></p>
+            {% endif %}
         </div>
         <div class="col-md-9">
             {% if property.property_type.raw_type == 'image' %}
