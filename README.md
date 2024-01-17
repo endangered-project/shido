@@ -9,4 +9,4 @@ A complete managed knowledge base for storing and retrieving information in a st
 
 ## Progression
 
-See [GitHub Project](https://github.com/users/HelloYeew/projects/8/) for more details.
+See [GitHub Project](https://github.com/orgs/endangered-project/projects/1/) ([old board before moving](https://github.com/users/HelloYeew/projects/8/views/2)) for more details.

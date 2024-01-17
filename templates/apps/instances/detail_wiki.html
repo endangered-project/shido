@@ -33,10 +33,11 @@
         </div>
     {% endif %}
     {% endif %}
-    <h2>{{ wiki_detail.title }}</h2>
+    {% if wiki_detail.content %}
     <div style="max-width: 100%;">
         {{ wiki_detail.content|convert_markdown|safe }}
     </div>
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}
