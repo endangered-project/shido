@@ -33,11 +33,26 @@
         </div>
     {% endif %}
     {% endif %}
-    {% if wiki_detail.content %}
-    <div style="max-width: 100%;">
-        {{ wiki_detail.content|convert_markdown|safe }}
+    <div style="border-bottom: 1px solid var(--shido-border); margin-bottom: .5rem; padding-bottom: .5rem; margin-top: 1rem;">
+        <h1>{% if wiki_detail.title %}{{ wiki_detail.title }}{% else %}{{ instance.name }}{% endif %}</h1>
     </div>
-    {% endif %}
+    <div class="row">
+        <div class="col-9">
+            {% if wiki_detail.content %}
+                <div style="max-width: 100%;">
+                    {{ wiki_detail.content|convert_markdown|safe }}
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-3">
+            <div class="p-3" style="background-color: var(--shido-background-darker); border-radius: 0.25rem;">
+                <h3 style="text-align: center">{% if wiki_detail.title %}{{ wiki_detail.title }}{% else %}{{ instance.name }}{% endif %}</h3>
+                {% if wiki_detail.image %}
+                <img src="{{ wiki_detail.image }}" style="width: 100%; border-radius: 0.25rem;">
+                {% endif %}
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block scripts %}

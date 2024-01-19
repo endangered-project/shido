@@ -25,7 +25,7 @@
     <p></p>
     <p>Showing property types that can be added to <b>{{ instance.name }}</b> (property that can add to instance in <b>{{ instance.class_instance.name }}</b> class), if the property type you want is not listed, please create it <a href="{% url 'apps_property_type_create' %}">here</a>.</p>
     <h2>Existing property</h2>
-    <div class="row">
+    <div class="row gy-2">
     {% for property in all_property_types %}
         {% if property.exist %}
         <div class="col-md-4">
@@ -45,7 +45,7 @@
     {% endfor %}
     </div>
     <h2 style="margin-top: 1rem;">New property</h2>
-    <div class="row">
+    <div class="row gy-2">
     {% for property in all_property_types %}
         {% if not property.exist %}
             <div class="col-md-4">

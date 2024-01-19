@@ -100,6 +100,10 @@ def instance_detail_wiki(request, instance_id):
             break
     wiki_detail = {}
     try:
+        wiki_detail['title'] = ObjectPropertyRelation.objects.get(instance_object_id=instance_id, property_type__name='wikiTitle').raw_value
+    except ObjectPropertyRelation.DoesNotExist:
+        wiki_detail['title'] = None
+    try:
         wiki_detail['content'] = ObjectPropertyRelation.objects.get(instance_object_id=instance_id, property_type__name='wikiContent').raw_value
     except ObjectPropertyRelation.DoesNotExist:
         wiki_detail['content'] = None
@@ -292,6 +296,16 @@ def instance_create_wiki_property(request, instance_id):
             name='wikiImage',
             raw_type='image',
             limitation={}
+        )
+    if not PropertyType.objects.filter(class_instance=instance.class_instance, name='wikiTitle').exists():
+        PropertyType.objects.create(
+            class_instance=instance.class_instance,
+            name='wikiTitle',
+            raw_type='string',
+            limitation={
+                'max_length': 255,
+                'min_length': 1
+            }
         )
     messages.success(request, f'Wiki property created successfully, please edit them!')
     return redirect('apps_instance_property_list', instance_id=instance_id)
