@@ -28,7 +28,8 @@ urlpatterns = [
     path('logout/', logout_and_redirect, name='logout'),
     path('register/', register, name='register'),
     path('', include('apps.urls')),
-    path('users/', include('users.urls'))
+    path('users/', include('users.urls')),
+    path('api/', include('apis.urls'))
 ]
 
 if config('ENABLE_DJANGO_ADMIN', cast=bool, default=False):
