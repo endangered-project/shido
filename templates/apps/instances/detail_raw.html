@@ -51,6 +51,8 @@
             </div>
             {% elif property.property_type.raw_type == 'instance' %}
             {{ property.raw_value|render_instance|safe }}
+            {% elif property.property_type.raw_type == 'class' %}
+            {{ property.raw_value|render_class|safe }}
             {% elif property.property_type.raw_type == 'instance_list' %}
             {{ property.raw_value|render_instance_list|safe }}
             {% else %}
