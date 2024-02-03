@@ -28,3 +28,8 @@ def render_class(class_id):
     class_ = Class.objects.get(id=class_id)
     link_to_class = reverse('apps_class_detail', args=[class_.id])
     return f'<a href="{link_to_class}">{class_.name}</a>'
+
+
+@register.filter
+def render_url(url):
+    return f'<a href="{url}">{url}</a>'

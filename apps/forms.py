@@ -478,3 +478,21 @@ class ObjectPropertyClassForm(forms.Form):
         if self.initial_value:
             self.base_fields['value'].initial = self.initial_value
         super(ObjectPropertyClassForm, self).__init__(*args, **kwargs)
+
+
+class ObjectPropertyURLForm(forms.Form):
+    value = forms.URLField(
+        label='Value',
+        widget=forms.URLInput(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Enter the value of the property'
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        super(ObjectPropertyURLForm, self).__init__(*args, **kwargs)
