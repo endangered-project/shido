@@ -33,7 +33,8 @@ RAW_TYPE_CHOICES = (
     ('image', 'Image'),
     ('file', 'File'),
     ('instance', 'Instance'),
-    ('instance_list', 'Instance List')
+    ('instance_list', 'Instance List'),
+    ('json', 'JSON')
 )
 
 type_limitation_template = {
@@ -61,6 +62,9 @@ type_limitation_template = {
     },
     "instance_list": {
         "allow_class_id_list": []
+    },
+    "json": {
+        "initial_json": {}
     }
 }
 
