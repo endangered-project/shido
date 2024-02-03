@@ -55,6 +55,8 @@
             {{ property.raw_value|render_class|safe }}
             {% elif property.property_type.raw_type == 'instance_list' %}
             {{ property.raw_value|render_instance_list|safe }}
+            {% elif property.property_type.raw_type == 'url' %}
+            {{ property.raw_value|render_url|safe }}
             {% else %}
             <p>{{ property.raw_value }}</p>
             {% endif %}
