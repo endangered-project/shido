@@ -441,3 +441,40 @@ class ObjectPropertyInstanceListForm(forms.Form):
             self.base_fields['value'].help_text = f'Select the value of the property (only instance in {Class.objects.filter(id__in=self.class_id_list)} will be shown)'
             self.base_fields['value'].queryset = Instance.objects.filter(class_instance__id__in=self.class_id_list)
         super(ObjectPropertyInstanceListForm, self).__init__(*args, **kwargs)
+
+
+class ObjectPropertyJSONForm(forms.Form):
+    value = forms.JSONField(
+        label='Value',
+        widget=forms.Textarea(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Enter the value of the property in JSON format'
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        super(ObjectPropertyJSONForm, self).__init__(*args, **kwargs)
+
+
+class ObjectPropertyClassForm(forms.Form):
+    value = forms.ModelChoiceField(
+        queryset=Class.objects.all(),
+        label='Value',
+        widget=forms.Select(
+            attrs={
+                'class': 'form-control'
+            }
+        ),
+        help_text='Select the value of the property'
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.initial_value = kwargs.pop('initial_value')
+        if self.initial_value:
+            self.base_fields['value'].initial = self.initial_value
+        super(ObjectPropertyClassForm, self).__init__(*args, **kwargs)

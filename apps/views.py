@@ -6,7 +6,8 @@ from django.shortcuts import render, redirect
 from apps.forms import ClassForm, InstanceForm, PropertyTypeForm, \
     ObjectPropertyStringForm, ObjectPropertyNumberForm, ObjectPropertyFloatForm, ObjectPropertyBooleanForm, \
     ObjectPropertyDateForm, ObjectPropertyDateTimeForm, ObjectPropertyMarkdownForm, ObjectPropertyImageForm, \
-    ObjectPropertyFileForm, ObjectPropertyInstanceForm, ObjectPropertyInstanceListForm
+    ObjectPropertyFileForm, ObjectPropertyInstanceForm, ObjectPropertyInstanceListForm, ObjectPropertyJSONForm, \
+    ObjectPropertyClassForm
 from apps.models import Class, Instance, PropertyType, ObjectPropertyRelation
 from apps.templatetags.json_to_list import json_to_list
 from enums import WIKI_PROPERTY_TYPE_LIST
@@ -207,6 +208,14 @@ def instance_property_form(request, instance_id, property_type_id):
             form = ObjectPropertyInstanceForm(request.POST, class_id=property_type.limitation['class_id'], initial_value=Instance.objects.filter(class_instance_id=property_type.limitation['class_id']).first())
         elif property_type.raw_type == 'instance_list':
             form = ObjectPropertyInstanceListForm(request.POST, class_id_list=property_type.limitation['allow_class_id_list'], initial_value=[])
+        elif property_type.raw_type == 'json':
+            try:
+                initial_json = property_type.limitation['initial_json']
+            except KeyError:
+                initial_json = {}
+            form = ObjectPropertyJSONForm(request.POST, initial_value=initial_json)
+        elif property_type.raw_type == 'class':
+            form = ObjectPropertyClassForm(request.POST, initial_value=Class.objects.all().first())
         else:
             messages.error(request, f'Raw type {property_type.raw_type} is not supported for adding property')
             return redirect('apps_instance_detail', instance_id=instance_id)
@@ -222,6 +231,8 @@ def instance_property_form(request, instance_id, property_type_id):
                 # get list of instance id with comma separated
                 raw_value = ','.join([str(instance.id) for instance in form.cleaned_data['value']])
             elif property_type.raw_type == 'instance':
+                raw_value = str(form.cleaned_data['value'].id)
+            elif property_type.raw_type == 'class':
                 raw_value = str(form.cleaned_data['value'].id)
             else:
                 raw_value = form.cleaned_data['value']
@@ -262,6 +273,14 @@ def instance_property_form(request, instance_id, property_type_id):
             form = ObjectPropertyInstanceForm(class_id=property_type.limitation['class_id'], initial_value=Instance.objects.get(id=old_property.raw_value) if old_property else Instance.objects.filter(class_instance_id=property_type.limitation['class_id']).first())
         elif property_type.raw_type == 'instance_list':
             form = ObjectPropertyInstanceListForm(class_id_list=property_type.limitation['allow_class_id_list'], initial_value=old_property.raw_value.split(',') if old_property else [])
+        elif property_type.raw_type == 'json':
+            try:
+                initial_json = property_type.limitation['initial_json']
+            except KeyError:
+                initial_json = {}
+            form = ObjectPropertyJSONForm(initial_value=old_property.raw_value if old_property else initial_json)
+        elif property_type.raw_type == 'class':
+            form = ObjectPropertyClassForm(initial_value=Class.objects.get(id=old_property.raw_value) if old_property else Class.objects.all().first())
         else:
             messages.error(request, f'Raw type {property_type.raw_type} is not supported for adding property')
             return redirect('apps_instance_detail', instance_id=instance_id)
