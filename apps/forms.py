@@ -68,6 +68,8 @@ class InstanceForm(forms.ModelForm):
                 f"The instance with name {name} already exists in {class_instance}",
                 code='invalid'
             )
+        if not name.isalnum():
+            self.add_error('name', f'The instance name must not contain special symbol or space')
         return cleaned_data
 
 
@@ -203,7 +205,6 @@ class PropertyTypeForm(forms.ModelForm):
 
 class ObjectPropertyStringForm(forms.Form):
     value = forms.CharField(
-        max_length=255,
         label='Value',
         widget=forms.TextInput(
             attrs={
@@ -221,15 +222,17 @@ class ObjectPropertyStringForm(forms.Form):
             self.base_fields['value'].initial = self.initial_value
         if self.max_length:
             self.base_fields['value'].max_length = self.max_length
+        else:
+            self.base_fields['value'].max_length = 255
         super(ObjectPropertyStringForm, self).__init__(*args, **kwargs)
 
     def clean(self):
         cleaned_data = super(ObjectPropertyStringForm, self).clean()
         value = cleaned_data.get("value")
         if len(value) < self.min_length:
-            self.add_error('value', f'The value must not be shorter than {self.min_length}')
+            self.add_error('value', f'The value must not be shorter than {self.min_length} (current length: {len(value)})')
         if len(value) > self.max_length:
-            self.add_error('value', f'The value must not be longer than {self.max_length}')
+            self.add_error('value', f'The value must not be longer than {self.max_length} (current length: {len(value)})')
         return cleaned_data
 
 
@@ -438,7 +441,7 @@ class ObjectPropertyInstanceListForm(forms.Form):
             # initial value will be served as a list of instance id
             self.base_fields['value'].initial = Instance.objects.filter(id__in=self.initial_value)
         if self.class_id_list:
-            self.base_fields['value'].help_text = f'Select the value of the property (only instance in {Class.objects.filter(id__in=self.class_id_list)} will be shown)'
+            self.base_fields['value'].help_text = f'Select the value of the property (only instance in {Class.objects.filter(id__in=self.class_id_list).values_list("name", flat=True)} will be shown due to the limitation)'
             self.base_fields['value'].queryset = Instance.objects.filter(class_instance__id__in=self.class_id_list)
         super(ObjectPropertyInstanceListForm, self).__init__(*args, **kwargs)
 
