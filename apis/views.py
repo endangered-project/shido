@@ -2,19 +2,125 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from apis.serializers import ClassSerializer
-from apps.models import Class
+from apis.serializers import ClassSerializer, PropertyTypeSerializer, InstanceSerializer
+from apps.models import Class, PropertyType, Instance
 
 
 @csrf_exempt
 @require_http_methods(["GET"])
-def get_all_class(request):
+def get_class(request):
     """
     View for return all class in JSON format.
-
-    :param request: WSGI request from user
-    :return: All class in JSON format.
     """
+    class_id = request.GET.get('class', None)
+    if class_id:
+        try:
+            class_instance = Class.objects.get(id=class_id)
+            return JsonResponse(ClassSerializer(class_instance).data)
+        except Class.DoesNotExist:
+            return JsonResponse({
+                'message': 'Class does not exist'
+            }, status=404)
+    else:
+        return JsonResponse({
+            'class': ClassSerializer(Class.objects.all(), many=True).data
+        })
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_property_type_from_class(request):
+    """
+    View for return all property type of class in JSON format.
+    """
+    class_id = request.GET.get('class', None)
+    if class_id is None:
+        return JsonResponse({
+            'message': 'No class ID provided'
+        }, status=400)
+    try:
+        class_instance = Class.objects.get(id=class_id)
+    except Class.DoesNotExist:
+        return JsonResponse({
+            'message': 'Class does not exist'
+        }, status=404)
     return JsonResponse({
-        'class': ClassSerializer(Class.objects.all(), many=True).data
+        'property_type': PropertyTypeSerializer(PropertyType.objects.filter(class_instance=class_instance), many=True).data
+    })
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_instance_from_class(request):
+    """
+    View for return all instance of class in JSON format.
+    """
+    class_id = request.GET.get('class', None)
+    if class_id is None:
+        return JsonResponse({
+            'message': 'No class ID provided'
+        }, status=400)
+    try:
+        class_instance = Class.objects.get(id=class_id)
+    except Class.DoesNotExist:
+        return JsonResponse({
+            'message': 'Class does not exist'
+        }, status=404)
+    return JsonResponse({
+        'class': ClassSerializer(class_instance).data,
+        'instance': InstanceSerializer(Instance.objects.filter(class_instance=class_instance), many=True).data
+    })
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_instance(request, instance_id):
+    """
+    View for return instance in JSON format.
+    """
+    try:
+        instance = Instance.objects.get(id=instance_id)
+    except Instance.DoesNotExist:
+        return JsonResponse({
+            'message': 'Instance does not exist'
+        }, status=404)
+    return JsonResponse(InstanceSerializer(instance).data)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_random_instance_from_class(request):
+    """
+    View for return random instance of class in JSON format.
+    """
+    class_id = request.GET.get('class', None)
+    number_of_instance = request.GET.get('number', 1)
+    if class_id is None:
+        return JsonResponse({
+            'message': 'No class ID provided'
+        }, status=400)
+    try:
+        number_of_instance = int(number_of_instance)
+    except ValueError:
+        return JsonResponse({
+            'message': 'Number of instance is not a number'
+        }, status=400)
+    if number_of_instance < 1:
+        return JsonResponse({
+            'message': 'Number of instance must be greater than 0'
+        }, status=400)
+    try:
+        class_instance = Class.objects.get(id=class_id)
+        instance_amount = Instance.objects.filter(class_instance=class_instance).count()
+        if number_of_instance > instance_amount:
+            return JsonResponse({
+                'message': f'Number of instance must be less than or equal to {instance_amount}'
+            }, status=400)
+    except Class.DoesNotExist:
+        return JsonResponse({
+            'message': 'Class does not exist'
+        }, status=404)
+    return JsonResponse({
+        'class': ClassSerializer(class_instance).data,
+        'instance': InstanceSerializer(Instance.objects.filter(class_instance=class_instance).order_by('?')[:number_of_instance], many=True).data
     })
