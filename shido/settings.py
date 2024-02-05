@@ -50,8 +50,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'rest_framework',
+    'drf_yasg',
     'users',
-    'apps'
+    'apps',
+    'apis'
 ]
 
 MIDDLEWARE = [
