@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 
 import sentry_sdk
+from corsheaders.defaults import default_headers
 from decouple import config, Csv
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'corsheaders',
     'rest_framework',
     'drf_yasg',
     'users',
@@ -59,6 +61,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -334,3 +337,20 @@ if config('ENABLE_SENTRY', cast=bool, default=False):
             )
         ]
     )
+
+
+# Django CORS Headers configuration
+# https://github.com/adamchainz/django-cors-headers
+
+CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', cast=bool, default=False)
+CORS_TRUSTED_ORIGINS = config('CORS_TRUSTED_ORIGINS', cast=Csv(), default='')
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', cast=Csv(), default='')
+CORS_ALLOW_HEADERS = (
+    *default_headers,
+    "x-client-id",
+    "x-client-secret",
+    "x-session-token",
+    # Sentry frontend
+    "baggage",
+    "sentry-trace"
+)

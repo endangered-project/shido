@@ -1,8 +1,7 @@
 import logging
 
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
+from rest_framework.decorators import api_view
 
 from apis.serializers import ClassSerializer, PropertyTypeSerializer, InstanceSerializer
 from apps.models import Class, PropertyType, Instance
@@ -13,8 +12,7 @@ internal_server_error_message = JsonResponse({
 }, status=500)
 
 
-@csrf_exempt
-@require_http_methods(["GET"])
+@api_view(['GET'])
 def get_class(request):
     """
     View for return all class in JSON format.
@@ -39,8 +37,7 @@ def get_class(request):
         return internal_server_error_message
 
 
-@csrf_exempt
-@require_http_methods(["GET"])
+@api_view(['GET'])
 def get_property_type_from_class(request):
     """
     View for return all property type of class in JSON format.
@@ -66,8 +63,7 @@ def get_property_type_from_class(request):
         return internal_server_error_message
 
 
-@csrf_exempt
-@require_http_methods(["GET"])
+@api_view(['GET'])
 def get_instance_from_class(request):
     """
     View for return all instance of class in JSON format.
@@ -94,8 +90,7 @@ def get_instance_from_class(request):
         return internal_server_error_message
 
 
-@csrf_exempt
-@require_http_methods(["GET"])
+@api_view(['GET'])
 def get_instance(request, instance_id):
     """
     View for return instance in JSON format.
@@ -114,8 +109,7 @@ def get_instance(request, instance_id):
         return internal_server_error_message
 
 
-@csrf_exempt
-@require_http_methods(["GET"])
+@api_view(['GET'])
 def get_random_instance_from_class(request):
     """
     View for return random instance of class in JSON format.
