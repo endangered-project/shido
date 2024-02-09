@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.files.storage import default_storage
 from django.shortcuts import render, redirect
 
@@ -24,6 +24,7 @@ def class_list(request):
 
 
 @login_required()
+@user_passes_test(lambda u: u.is_staff)
 def class_create(request):
     if request.method == 'POST':
         form = ClassForm(request.POST)
@@ -48,6 +49,7 @@ def class_detail(request, class_id):
 
 
 @login_required()
+@user_passes_test(lambda u: u.is_staff)
 def class_edit(request, class_id):
     if request.method == 'POST':
         form = ClassForm(request.POST, instance=Class.objects.get(id=class_id))
@@ -71,6 +73,7 @@ def instance_list(request):
 
 
 @login_required()
+@user_passes_test(lambda u: u.is_staff)
 def instance_create(request):
     if request.method == 'POST':
         form = InstanceForm(request.POST)
@@ -86,7 +89,6 @@ def instance_create(request):
 
 
 def instance_detail(request, instance_id):
-    # TODO: This should be redirect to wiki view if wiki is enabled
     return redirect('apps_instance_detail_wiki', instance_id=instance_id)
 
 
@@ -133,11 +135,19 @@ def instance_detail_raw(request, instance_id):
 
 
 @login_required()
+@user_passes_test(lambda u: u.is_staff)
 def instance_edit(request, instance_id):
     if request.method == 'POST':
         form = InstanceForm(request.POST, instance=Instance.objects.get(id=instance_id))
         if form.is_valid():
             form.save()
+            for object_property in ObjectPropertyRelation.objects.filter(instance_object=Instance.objects.get(id=instance_id)):
+                exist_property_type = PropertyType.objects.filter(class_instance=object_property.instance_object.class_instance, name=object_property.property_type.name, raw_type=object_property.property_type.raw_type)
+                if exist_property_type.exists():
+                    object_property.property_type = exist_property_type.first()
+                    object_property.save()
+                else:
+                    object_property.delete()
             messages.success(request, f'Instance edited successfully!')
             return redirect('apps_instance_detail', instance_id=instance_id)
     else:
@@ -149,6 +159,7 @@ def instance_edit(request, instance_id):
 
 
 @login_required()
+@user_passes_test(lambda u: u.is_staff)
 def instance_property_list(request, instance_id):
     try:
         instance = Instance.objects.get(id=instance_id)
@@ -169,6 +180,7 @@ def instance_property_list(request, instance_id):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_staff)
 def instance_property_form(request, instance_id, property_type_id):
     try:
         instance = Instance.objects.get(id=instance_id)
@@ -341,6 +353,7 @@ def property_type_list(request):
 
 
 @login_required()
+@user_passes_test(lambda u: u.is_staff)
 def property_type_create(request):
     if request.method == 'POST':
         form = PropertyTypeForm(request.POST)

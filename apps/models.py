@@ -103,7 +103,7 @@ class ObjectPropertyRelation(models.Model):
     instance_object = models.ForeignKey(Instance, on_delete=models.CASCADE)
     property_type = models.ForeignKey(PropertyType, on_delete=models.CASCADE)
     # raw value will passed by the program to the frontend to render the real value
-    raw_value = models.CharField(max_length=500)
+    raw_value = models.CharField(max_length=1000000)
 
     def __str__(self):
         return str(self.instance_object) + ' - ' + str(self.property_type)
