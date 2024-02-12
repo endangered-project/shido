@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 urlpatterns = [
     path('login/', LoginView.as_view(template_name='users/login.html'), name='login'),
     path('logout/', logout_and_redirect, name='logout'),
-    path('register/', register, name='register'),
+    # path('register/', register, name='register'),
     path('', include('apps.urls')),
     path('users/', include('users.urls')),
     path('api/', include('apis.urls'))
