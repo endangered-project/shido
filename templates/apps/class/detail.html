@@ -22,7 +22,9 @@
     </nav>
     <h1 style="padding-top: 1rem; padding-bottom: 1rem;">{{ class.name }}</h1>
     <p></p>
+    {% if user.is_staff %}
     <a href="{% url 'apps_class_edit' class.id %}" class="btn btn-primary"><i class="mdi mdi-pencil" aria-hidden="true" style="font-size: 20px"></i> Edit</a>
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}
