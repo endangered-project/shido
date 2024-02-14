@@ -21,6 +21,23 @@ class Instance(models.Model):
     def __str__(self):
         return self.name
 
+    def have_wiki(self):
+        """
+        Check if the instance can have wiki
+        :return: True if the instance can have wiki, False if not
+        """
+        try:
+            title = ObjectPropertyRelation.objects.get(instance_object_id=self.id, property_type__name='wikiTitle').raw_value
+            content = ObjectPropertyRelation.objects.get(instance_object_id=self.id, property_type__name='wikiContent').raw_value
+            image = ObjectPropertyRelation.objects.get(instance_object_id=self.id, property_type__name='wikiImage').raw_value
+            return {
+                "title": title,
+                "content": content,
+                "image": image
+            }
+        except:
+            return False
+
 
 RAW_TYPE_CHOICES = (
     ('string', 'String'),

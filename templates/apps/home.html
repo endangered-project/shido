@@ -1,4 +1,5 @@
 {% extends "apps/base.html" %}
+{% load markdown_converter %}
 
 {% block title %}Home{% endblock %}
 
@@ -13,9 +14,56 @@
 {% endblock %}
 
 {% block content %}
-    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Home</h1>
-    <a href="#" class="btn btn-primary"><i class="mdi mdi-plus" aria-hidden="true" style="font-size: 20px"></i> Dummy</a>
+    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Welcome to the knowledge base!</h1>
     <p></p>
+    <div class="row mb-3">
+        <div class="col-md-4" onclick="window.location.href='{% url 'apps_class_list' %}'" style="cursor: pointer;">
+            <div class="element-card-wrapper">
+                <div class="element-card-background" style="width: 100%; height: 100%; border-radius: 0.25rem;">
+                    <div class="element-card-body">
+                        <h5 class="card-title"><i class="mdi mdi-group" aria-hidden="true" style="font-size: 20px"></i></h5>
+                        <h5 class="card-title mt-2">Total Class</h5>
+                        <p class="card-text mb-0 mt-2">{{ total_class }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4" onclick="window.location.href='{% url 'apps_instance_list' %}'" style="cursor: pointer;">
+            <div class="element-card-wrapper">
+                <div class="element-card-background" style="width: 100%; height: 100%; border-radius: 0.25rem;">
+                    <div class="element-card-body">
+                        <h5 class="card-title"><i class="mdi mdi-square-circle" aria-hidden="true" style="font-size: 20px"></i></h5>
+                        <h5 class="card-title mt-2">Total Instance</h5>
+                        <p class="card-text mb-0 mt-2">{{ total_instance }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if wiki_ready %}
+    <h2>Random wiki</h2>
+    <div class="p-3" style="background-color: var(--shido-background-darker); border-radius: 0.25rem;">
+        <div style="margin-bottom: .5rem; padding-bottom: .5rem; margin-top: 1rem;">
+            <h3>{% if wiki_detail.title %}{{ wiki_detail.title }}{% else %}{{ wiki_instance.name }}{% endif %}</h3>
+        </div>
+        <div class="row">
+            <div class="{% if wiki_detail.image %}col-md-9{% else %}col-md-12{% endif %}">
+                {% if wiki_detail.content %}
+                    <div style="max-width: 100vw; overflow-x: auto;">
+                        {{ wiki_detail.content|convert_markdown|safe }}
+                    </div>
+                {% endif %}
+            </div>
+            {% if wiki_detail.image %}
+                <div class="col-md-3">
+                    <div class="p-3" style="background-color: var(--shido-background-darker); border-radius: 0.25rem;">
+                        <img src="{{ wiki_detail.image }}" style="width: 100%; border-radius: 0.25rem;">
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}

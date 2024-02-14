@@ -14,7 +14,22 @@ from enums import WIKI_PROPERTY_TYPE_LIST
 
 
 def home(request):
-    return render(request, 'apps/home.html')
+    # random the ObjectPropertyRelation property_type__name='wikiContent'
+    try:
+        wiki_instance = ObjectPropertyRelation.objects.filter(property_type__name='wikiContent').order_by('?').first().instance_object
+        wiki_ready = True
+        wiki_content = wiki_instance.have_wiki()
+    except ObjectPropertyRelation.DoesNotExist:
+        wiki_ready = False
+        wiki_content = None
+        wiki_instance = None
+    return render(request, 'apps/home.html', {
+        'wiki_ready': wiki_ready,
+        'wiki_detail': wiki_content,
+        'wiki_instance': wiki_instance,
+        'total_class': Class.objects.count(),
+        'total_instance': Instance.objects.count()
+    })
 
 
 def class_list(request):
