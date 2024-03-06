@@ -58,6 +58,7 @@ A RESTful API is also provided.
 git clone https://github.com/endangered-project/shido.git 
 ```
 2. Navigate to the project folder.
+3. Create your own `.env` file based on the provided example.
 3. Setup poetry on your machine by following the tutorial [here](https://python-poetry.org/docs/).
 4. All poetry files are already provided, the only thing left is to properly setup poetry virtual environment.
 5. Create a poetry virtual environment:
