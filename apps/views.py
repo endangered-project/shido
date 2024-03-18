@@ -19,7 +19,7 @@ def home(request):
         wiki_instance = ObjectPropertyRelation.objects.filter(property_type__name='wikiContent').order_by('?').first().instance_object
         wiki_ready = True
         wiki_content = wiki_instance.have_wiki()
-    except ObjectPropertyRelation.DoesNotExist:
+    except Exception as e:
         wiki_ready = False
         wiki_content = None
         wiki_instance = None
