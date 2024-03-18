@@ -59,7 +59,8 @@ def class_detail(request, class_id):
         messages.error(request, f'Class with id {class_id} does not exist')
         return redirect('apps_class_list')
     return render(request, 'apps/class/detail.html', {
-        'class': Class.objects.get(id=class_id)
+        'class': Class.objects.get(id=class_id),
+        'instance_list': Instance.objects.filter(class_instance=Class.objects.get(id=class_id))
     })
 
 
